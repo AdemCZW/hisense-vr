@@ -81,17 +81,26 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, watch } from 'vue'
+import { useGameStore } from '../stores/gameStore.js'
 
 defineEmits(['complete'])
+const store = useGameStore()
 const detected = ref(false)
+let timer = null
 
 function handleKick() {
   detected.value = true
 }
 
-onMounted(() => {
-  setTimeout(() => { if (!detected.value) detected.value = true }, 4000)
+// 進入此畫面才開始偵測計時
+watch(() => store.screen, (screen) => {
+  if (screen === 'calibKick') {
+    detected.value = false
+    timer = setTimeout(() => { if (!detected.value) detected.value = true }, 4000)
+  } else {
+    if (timer) { clearTimeout(timer); timer = null }
+  }
 })
 </script>
 
