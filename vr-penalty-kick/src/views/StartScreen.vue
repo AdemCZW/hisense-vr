@@ -10,18 +10,6 @@
       <img src="../assets/images/1-slogan@4x.png" alt="VR Penalty Kick" class="slogan-img" />
     </div>
 
-    <!-- Hisense 廣告圍欄 -->
-    <div class="ad-board">
-      <div class="ad-board-scroll">
-        <span v-for="n in 12" :key="n" class="ad-item">
-          <span class="ad-hisense">Hisense</span>
-          <svg class="ad-fifa-icon" width="20" height="22" viewBox="0 0 32 36" fill="none">
-            <path d="M16 2L28 8V20C28 28 16 34 16 34S4 28 4 20V8L16 2Z" fill="#C8A84E"/>
-          </svg>
-        </span>
-      </div>
-    </div>
-
     <!-- START 按鈕 -->
     <div class="start-btn-wrapper">
       <button class="start-btn" @click="$emit('start')">
@@ -75,7 +63,7 @@ function particleStyle(n) {
 .top-branding {
   position: absolute;
   top: 24px;
-  right: 28px;
+  left: 28px;
   z-index: 10;
 }
 
@@ -104,49 +92,6 @@ function particleStyle(n) {
   0%, 100% { transform: translateY(0); }
   50% { transform: translateY(-8px); }
 }
-
-/* ─── 廣告圍欄 ─── */
-.ad-board {
-  position: absolute;
-  bottom: 140px;
-  left: 0;
-  right: 0;
-  height: 48px;
-  overflow: hidden;
-  z-index: 5;
-  background: linear-gradient(90deg, rgba(0,139,139,0.85), rgba(0,154,138,0.85), rgba(0,168,138,0.85), rgba(0,154,138,0.85), rgba(0,139,139,0.85));
-  border-top: 2px solid rgba(0, 229, 160, 0.3);
-  border-bottom: 2px solid rgba(0, 229, 160, 0.3);
-}
-
-.ad-board-scroll {
-  display: flex;
-  align-items: center;
-  height: 100%;
-  animation: scrollAd 20s linear infinite;
-  white-space: nowrap;
-}
-
-@keyframes scrollAd {
-  0% { transform: translateX(0); }
-  100% { transform: translateX(-50%); }
-}
-
-.ad-item {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  padding: 0 32px;
-}
-
-.ad-hisense {
-  font-size: 18px;
-  font-weight: 700;
-  color: #ffffff;
-  letter-spacing: 1px;
-}
-
-.ad-fifa-icon { opacity: 0.8; }
 
 /* ─── START 按鈕 ─── */
 .start-btn-wrapper {
