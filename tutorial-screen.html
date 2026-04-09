@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VR Penalty Kick — Tutorial</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;500;600;700;900&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Outfit', sans-serif;
+    background: #060e0a;
+    overflow: hidden;
+    width: 100vw;
+    height: 100vh;
+    color: #fff;
+  }
+
+  .tutorial-screen {
+    position: fixed;
+    inset: 0;
+    overflow: hidden;
+  }
+
+  /* ─── 背景 ─── */
+  .bg-layer { position: absolute; inset: 0; z-index: 0; }
+  #bgCanvas { width: 100%; height: 100%; display: block; }
+  .bg-overlay {
+    position: absolute; inset: 0;
+    background: radial-gradient(ellipse 90% 70% at 50% 40%, rgba(6,14,10,0.4), rgba(6,14,10,0.85));
+  }
+
+  /* ─── 步驟指示器 ─── */
+  .step-indicator {
+    position: absolute;
+    top: 28px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    align-items: center;
+    gap: 40px;
+    z-index: 20;
+  }
+
+  .step-dot {
+    width: 36px; height: 36px;
+    border-radius: 50%;
+    border: 2px solid rgba(255,255,255,0.2);
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    background: rgba(0,0,0,0.4);
+    font-size: 14px; font-weight: 700;
+    color: rgba(255,255,255,0.6);
+  }
+
+  .step-dot.active {
+    border-color: #00e5a0;
+    background: rgba(0,229,160,0.15);
+    box-shadow: 0 0 20px rgba(0,229,160,0.3);
+    color: #00e5a0;
+  }
+
+  .step-dot.done {
+    border-color: #00e5a0;
+    background: #00e5a0;
+    color: #0a1a12;
+  }
+
+  /* ─── 內容頁 ─── */
+  .page { display: none; position: absolute; inset: 80px 0 120px 0; z-index: 10; }
+  .page.active { display: flex; flex-direction: column; align-items: center; justify-content: center; }
+
+  /* ─── 警告 Banner ─── */
+  .alert-banner {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    max-width: 520px;
+    margin-bottom: 24px;
+  }
+
+  .alert-icon {
+    display: flex; align-items: center; justify-content: center;
+    width: 28px; height: 28px;
+    border-radius: 50%;
+    background: #f5a623;
+    color: #000;
+    font-size: 16px; font-weight: 900;
+    flex-shrink: 0;
+  }
+
+  .alert-text {
+    font-size: 16px; font-weight: 500;
+    color: rgba(255,255,255,0.9);
+    line-height: 1.5;
+  }
+
+  /* ─── 裝備區域 ─── */
+  .equipment-layout {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 20px;
+    width: 100%;
+    max-width: 900px;
+    position: relative;
+  }
+
+  .equip-column {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    flex-shrink: 0;
+  }
+
+  .equip-card {
+    position: relative;
+  }
+
+  .step-tag {
+    font-size: 15px; font-weight: 700;
+    color: #f5c842;
+    font-style: italic;
+    display: block;
+  }
+
+  .equip-name {
+    font-size: 14px; font-weight: 600;
+    color: #f5c842;
+    font-style: italic;
+  }
+
+  .equip-box {
+    width: 170px; height: 105px;
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    margin-top: 6px;
+    backdrop-filter: blur(8px);
+  }
+
+  /* ─── 中央人物 ─── */
+  .figure-center {
+    flex-shrink: 0;
+    width: 160px;
+    display: flex; align-items: center; justify-content: center;
+    position: relative;
+  }
+
+  .figure-svg { filter: drop-shadow(0 4px 20px rgba(0,0,0,0.5)); }
+
+  /* 連接虛線 */
+  .connect-lines {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    pointer-events: none;
+  }
+
+  /* ─── cut3 ─── */
+  .assist-figure { position: relative; margin: 12px auto; }
+
+  .exclaim-badge {
+    position: absolute;
+    top: 5px; right: -16px;
+    width: 36px; height: 36px;
+    border-radius: 50%;
+    background: #e24b4a;
+    display: flex; align-items: center; justify-content: center;
+    border: 3px solid #fff;
+    animation: pulse 2s ease-in-out infinite;
+    font-size: 20px; font-weight: 900;
+  }
+
+  @keyframes pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.15); }
+  }
+
+  .kick-prompt {
+    margin-top: 20px;
+    background: #fff;
+    color: #e24b4a;
+    font-size: 18px; font-weight: 700; font-style: italic;
+    padding: 14px 36px;
+    border-radius: 50px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+  }
+
+  /* ─── 廣告圍欄 ─── */
+  .ad-board {
+    position: absolute;
+    bottom: 80px; left: 0; right: 0;
+    height: 40px;
+    overflow: hidden;
+    z-index: 5;
+    background: linear-gradient(90deg, #008b8b, #009a8a, #00a88a, #009a8a, #008b8b);
+    border-top: 1px solid rgba(0,229,160,0.2);
+    border-bottom: 1px solid rgba(0,229,160,0.2);
+  }
+
+  .ad-scroll {
+    display: flex; align-items: center; height: 100%;
+    animation: scrollAd 20s linear infinite;
+    white-space: nowrap;
+  }
+
+  @keyframes scrollAd {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(-50%); }
+  }
+
+  .ad-item {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 0 28px;
+    font-size: 16px; font-weight: 700; color: #fff; letter-spacing: 1px;
+  }
+
+  /* ─── 導航按鈕 ─── */
+  .nav-buttons {
+    position: absolute;
+    bottom: 24px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 16px;
+    z-index: 20;
+  }
+
+  .nav-btn {
+    font-family: 'Outfit', sans-serif;
+    font-size: 16px; font-weight: 600;
+    padding: 12px 40px;
+    border: none; border-radius: 50px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    letter-spacing: 0.5px;
+  }
+
+  .nav-prev {
+    background: rgba(255,255,255,0.1);
+    color: #aaa;
+    border: 1px solid rgba(255,255,255,0.15);
+  }
+  .nav-prev:hover { background: rgba(255,255,255,0.18); color: #fff; }
+
+  .nav-next {
+    background: linear-gradient(135deg, #00e5a0, #00b8d4);
+    color: #0a1a12;
+  }
+  .nav-next:hover { transform: scale(1.04); filter: brightness(1.1); }
+  .nav-next:active { transform: scale(0.98); }
+
+  /* ─── Fade 過渡 ─── */
+  .page { opacity: 0; transition: opacity 0.4s ease, transform 0.4s ease; transform: translateX(30px); }
+  .page.active { opacity: 1; transform: translateX(0); display: flex; }
+</style>
+</head>
+<body>
+
+<div class="tutorial-screen">
+  <!-- 背景 -->
+  <div class="bg-layer">
+    <canvas id="bgCanvas"></canvas>
+    <div class="bg-overlay"></div>
+  </div>
+
+  <!-- 步驟指示器 -->
+  <div class="step-indicator">
+    <div class="step-dot active" id="dot0" onclick="goStep(0)">1</div>
+    <div class="step-dot" id="dot1" onclick="goStep(1)">2</div>
+  </div>
+
+  <!-- ════════ Page 1: cut2 裝備佩戴提示 ════════ -->
+  <div class="page active" id="page0">
+    <div class="alert-banner">
+      <span class="alert-icon">!</span>
+      <p class="alert-text">
+        Before the game begins, please follow the staff's<br>
+        instructions to put on the equipment.
+      </p>
+    </div>
+
+    <div class="equipment-layout">
+      <!-- 左側裝備 -->
+      <div class="equip-column">
+        <!-- Step 1 -->
+        <div class="equip-card">
+          <span class="step-tag">Step1.</span>
+          <span class="equip-name">Disposable VR Face Cover</span>
+          <div class="equip-box">
+            <svg viewBox="0 0 120 80" width="100" height="65">
+              <rect x="15" y="15" width="90" height="50" rx="25" fill="none" stroke="#aaa" stroke-width="2"/>
+              <circle cx="40" cy="40" r="14" fill="none" stroke="#aaa" stroke-width="2"/>
+              <circle cx="80" cy="40" r="14" fill="none" stroke="#aaa" stroke-width="2"/>
+            </svg>
+          </div>
+        </div>
+        <!-- Step 2 -->
+        <div class="equip-card">
+          <span class="step-tag">Step2.</span>
+          <span class="equip-name">Leg Tracker</span>
+          <div class="equip-box">
+            <svg viewBox="0 0 120 80" width="100" height="65">
+              <rect x="25" y="10" width="70" height="55" rx="12" fill="#1a1a2e" stroke="#555" stroke-width="2"/>
+              <rect x="35" y="18" width="50" height="30" rx="6" fill="#0d0d1a" stroke="#444" stroke-width="1"/>
+              <rect x="42" y="55" width="36" height="8" rx="4" fill="#333"/>
+            </svg>
+          </div>
+        </div>
+      </div>
+
+      <!-- 中央人物 -->
+      <div class="figure-center">
+        <svg viewBox="0 0 200 360" width="160" height="290" class="figure-svg">
+          <!-- 頭 -->
+          <ellipse cx="100" cy="50" rx="22" ry="24" fill="#d4d4d4"/>
+          <!-- VR 頭盔 -->
+          <rect x="72" y="38" width="56" height="26" rx="8" fill="#e8e8e8" stroke="#ccc"/>
+          <rect x="76" y="42" width="20" height="16" rx="4" fill="#333"/>
+          <rect x="104" y="42" width="20" height="16" rx="4" fill="#333"/>
+          <!-- 身體 -->
+          <path d="M80 74 Q100 80 120 74 L125 160 Q100 170 75 160Z" fill="#f0f0f0"/>
+          <!-- 袖子 -->
+          <path d="M75 78 L60 100 L68 104 L80 86" fill="#00b8a0"/>
+          <path d="M125 78 L140 100 L132 104 L120 86" fill="#00b8a0"/>
+          <!-- 褲子 -->
+          <path d="M82 155 L75 260 L92 260 L100 180 L108 260 L125 260 L118 155Z" fill="#f0f0f0"/>
+          <!-- 鞋子 -->
+          <rect x="72" y="256" width="22" height="12" rx="4" fill="#2a6a4a"/>
+          <rect x="106" y="256" width="22" height="12" rx="4" fill="#2a6a4a"/>
+          <!-- 小腿感測器 -->
+          <rect x="76" y="225" width="18" height="14" rx="4" fill="#1a1a2e" stroke="#00e5a0" stroke-width="1.5"/>
+          <!-- 踢球姿勢右腳 -->
+          <path d="M108 220 L140 280 L155 275 L125 215" fill="#f0f0f0" opacity="0.6"/>
+          <rect x="148" y="270" width="22" height="12" rx="4" fill="#2a6a4a" opacity="0.6"/>
+        </svg>
+
+        <!-- 虛線連接 -->
+        <svg style="position:absolute; inset:0; pointer-events:none" viewBox="0 0 160 290">
+          <!-- Step1 → 頭盔 -->
+          <line x1="0" y1="50" x2="55" y2="55" stroke="rgba(255,255,255,0.25)" stroke-width="1" stroke-dasharray="4,4"/>
+          <circle cx="55" cy="55" r="3" fill="#00e5a0"/>
+          <!-- Step2 → 小腿 -->
+          <line x1="0" y1="210" x2="58" y2="185" stroke="rgba(255,255,255,0.25)" stroke-width="1" stroke-dasharray="4,4"/>
+          <circle cx="58" cy="185" r="3" fill="#00e5a0"/>
+          <!-- Step3 → 頭部 -->
+          <line x1="160" y1="80" x2="110" y2="55" stroke="rgba(255,255,255,0.25)" stroke-width="1" stroke-dasharray="4,4"/>
+          <circle cx="110" cy="55" r="3" fill="#00e5a0"/>
+        </svg>
+      </div>
+
+      <!-- 右側裝備 -->
+      <div class="equip-column">
+        <div class="equip-card">
+          <span class="step-tag">Step3.</span>
+          <span class="equip-name">VR Headset</span>
+          <div class="equip-box">
+            <svg viewBox="0 0 120 80" width="100" height="65">
+              <rect x="10" y="15" width="100" height="45" rx="10" fill="#e8e8e8" stroke="#ccc" stroke-width="1"/>
+              <rect x="15" y="20" width="40" height="30" rx="6" fill="#222"/>
+              <rect x="65" y="20" width="40" height="30" rx="6" fill="#222"/>
+              <rect x="0" y="30" width="14" height="15" rx="4" fill="#ddd"/>
+              <line x1="40" y1="60" x2="80" y2="60" stroke="#00b8a0" stroke-width="3" stroke-linecap="round"/>
+            </svg>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════ Page 2: cut3 體驗協助提醒 ════════ -->
+  <div class="page" id="page1">
+    <div class="alert-banner">
+      <span class="alert-icon">!</span>
+      <p class="alert-text">
+        If you feel uncomfortable or have any questions,<br>
+        please raise your hand and inform the staff.
+      </p>
+    </div>
+
+    <div class="assist-figure" style="width:160px; height:280px; position:relative;">
+      <svg viewBox="0 0 200 340" width="160" height="280" class="figure-svg">
+        <ellipse cx="100" cy="50" rx="22" ry="24" fill="#d4d4d4"/>
+        <rect x="72" y="38" width="56" height="26" rx="8" fill="#e8e8e8" stroke="#ccc"/>
+        <rect x="76" y="42" width="20" height="16" rx="4" fill="#333"/>
+        <rect x="104" y="42" width="20" height="16" rx="4" fill="#333"/>
+        <line x1="72" y1="50" x2="128" y2="50" stroke="#00b8a0" stroke-width="2"/>
+        <path d="M80 74 Q100 80 120 74 L125 180 Q100 190 75 180Z" fill="#f0f0f0"/>
+        <path d="M75 78 L55 140 L62 144 L80 86" fill="#f0f0f0"/>
+        <path d="M75 80 L62 98 L55 140" fill="none" stroke="#00b8a0" stroke-width="3"/>
+        <path d="M125 78 L155 40 L160 42 L132 84" fill="#f0f0f0"/>
+        <path d="M125 80 L145 55 L155 30" fill="none" stroke="#00b8a0" stroke-width="3"/>
+        <circle cx="155" cy="30" r="10" fill="#d4d4d4"/>
+        <path d="M82 175 L75 280 L92 280 L100 200 L108 280 L125 280 L118 175Z" fill="#f0f0f0"/>
+        <rect x="72" y="276" width="22" height="12" rx="4" fill="#2a6a4a"/>
+        <rect x="106" y="276" width="22" height="12" rx="4" fill="#2a6a4a"/>
+      </svg>
+      <div class="exclaim-badge">!</div>
+    </div>
+
+    <div class="kick-prompt">
+      Kick your foot once to start the game.
+    </div>
+  </div>
+
+  <!-- 廣告圍欄 -->
+  <div class="ad-board">
+    <div class="ad-scroll" id="adScroll"></div>
+  </div>
+
+  <!-- 導航 -->
+  <div class="nav-buttons">
+    <button class="nav-btn nav-prev" id="btnPrev" style="display:none" onclick="goStep(currentStep-1)">Back</button>
+    <button class="nav-btn nav-next" id="btnNext" onclick="handleNext()">Next</button>
+  </div>
+</div>
+
+<script>
+// ─── 背景 ───
+const canvas = document.getElementById('bgCanvas');
+const ctx = canvas.getContext('2d');
+
+function drawBg() {
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+  const w = canvas.width, h = canvas.height;
+
+  const sky = ctx.createLinearGradient(0, 0, 0, h * 0.55);
+  sky.addColorStop(0, '#060e0a');
+  sky.addColorStop(1, '#0f2a1e');
+  ctx.fillStyle = sky;
+  ctx.fillRect(0, 0, w, h * 0.55);
+
+  ctx.fillStyle = '#0a120e';
+  ctx.fillRect(0, h * 0.15, w, h * 0.3);
+
+  const colors = ['#e24b4a', '#f5c842', '#00b8d4', '#ff6b35', '#fff'];
+  for (let i = 0; i < 150; i++) {
+    ctx.fillStyle = colors[Math.floor(Math.random() * colors.length)];
+    ctx.globalAlpha = 0.15 + Math.random() * 0.25;
+    ctx.beginPath();
+    ctx.arc(Math.random() * w, h * 0.17 + Math.random() * h * 0.25, 1.2, 0, Math.PI * 2);
+    ctx.fill();
+  }
+  ctx.globalAlpha = 1;
+
+  // 球門
+  const cx = w * 0.5, gt = h * 0.28, gw = w * 0.38, gh = h * 0.22;
+  ctx.strokeStyle = 'rgba(255,255,255,0.4)';
+  ctx.lineWidth = 2.5;
+  ctx.beginPath();
+  ctx.moveTo(cx - gw/2, gt + gh);
+  ctx.lineTo(cx - gw/2, gt);
+  ctx.lineTo(cx + gw/2, gt);
+  ctx.lineTo(cx + gw/2, gt + gh);
+  ctx.stroke();
+
+  ctx.strokeStyle = 'rgba(255,255,255,0.06)';
+  ctx.lineWidth = 1;
+  for (let c = 0; c <= 18; c++) {
+    const x = cx - gw/2 + (gw/18) * c;
+    ctx.beginPath(); ctx.moveTo(x, gt); ctx.lineTo(x, gt + gh); ctx.stroke();
+  }
+  for (let r = 0; r <= 7; r++) {
+    const y = gt + (gh/7) * r;
+    ctx.beginPath(); ctx.moveTo(cx - gw/2, y); ctx.lineTo(cx + gw/2, y); ctx.stroke();
+  }
+
+  // 草地
+  const grass = ctx.createLinearGradient(0, h * 0.5, 0, h);
+  grass.addColorStop(0, '#16553a');
+  grass.addColorStop(1, '#0e3a28');
+  ctx.fillStyle = grass;
+  ctx.fillRect(0, h * 0.5, w, h * 0.5);
+}
+
+drawBg();
+window.addEventListener('resize', drawBg);
+
+// ─── 廣告 ───
+const adScroll = document.getElementById('adScroll');
+const fifaSvg = `<svg width="18" height="20" viewBox="0 0 32 36" fill="none" style="opacity:0.7"><path d="M16 2L28 8V20C28 28 16 34 16 34S4 28 4 20V8L16 2Z" fill="#C8A84E"/></svg>`;
+let adHTML = '';
+for (let i = 0; i < 24; i++) adHTML += `<span class="ad-item">Hisense ${fifaSvg}</span>`;
+adScroll.innerHTML = adHTML;
+
+// ─── 步驟切換 ───
+let currentStep = 0;
+const totalSteps = 2;
+
+function goStep(n) {
+  if (n < 0 || n >= totalSteps) return;
+  currentStep = n;
+
+  // Pages
+  document.querySelectorAll('.page').forEach((p, i) => {
+    p.classList.toggle('active', i === n);
+  });
+
+  // Dots
+  document.querySelectorAll('.step-dot').forEach((d, i) => {
+    d.classList.remove('active', 'done');
+    if (i === n) d.classList.add('active');
+    else if (i < n) d.classList.add('done');
+  });
+
+  // Nav buttons
+  document.getElementById('btnPrev').style.display = n > 0 ? 'inline-block' : 'none';
+  document.getElementById('btnNext').textContent = n < totalSteps - 1 ? 'Next' : 'Ready!';
+}
+
+function handleNext() {
+  if (currentStep < totalSteps - 1) {
+    goStep(currentStep + 1);
+  } else {
+    // 進入遊戲
+    window.location.href = 'calibration-view.html';
+  }
+}
+</script>
+</body>
+</html>

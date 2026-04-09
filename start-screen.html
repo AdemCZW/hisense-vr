@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VR Penalty Kick — Start Screen</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;500;600;700;900&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Outfit', sans-serif;
+    background: #0a1a12;
+    overflow: hidden;
+    width: 100vw;
+    height: 100vh;
+  }
+
+  .start-screen {
+    position: fixed;
+    inset: 0;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* ─── 背景 ─── */
+  .bg-layer {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+  }
+
+  #bgCanvas {
+    width: 100%;
+    height: 100%;
+    display: block;
+  }
+
+  .bg-overlay {
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(
+      ellipse 80% 60% at 50% 40%,
+      rgba(10, 26, 18, 0.3),
+      rgba(10, 26, 18, 0.8)
+    );
+  }
+
+  /* ─── 左上品牌 ─── */
+  .top-branding {
+    position: absolute;
+    top: 24px;
+    left: 28px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    z-index: 10;
+  }
+
+  .hisense-logo {
+    font-size: 22px;
+    font-weight: 700;
+    color: #fff;
+    letter-spacing: 1px;
+  }
+
+  .sponsor-text {
+    font-size: 9px;
+    font-weight: 500;
+    color: rgba(255,255,255,0.5);
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+  }
+
+  /* ─── 中央標題 ─── */
+  .center-content {
+    position: relative;
+    z-index: 10;
+    text-align: center;
+    margin-top: -60px;
+  }
+
+  .ball-icon {
+    margin-bottom: 12px;
+    animation: float 3s ease-in-out infinite;
+  }
+
+  @keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-8px); }
+  }
+
+  .main-title {
+    font-size: clamp(48px, 8vw, 96px);
+    font-weight: 900;
+    letter-spacing: -2px;
+    line-height: 1.1;
+    text-shadow: 0 4px 40px rgba(0, 229, 160, 0.3);
+  }
+
+  .title-vr {
+    color: #fff;
+    font-style: italic;
+  }
+
+  .title-penalty {
+    background: linear-gradient(135deg, #00e5a0, #00d4aa);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    font-style: italic;
+  }
+
+  .title-kick {
+    background: linear-gradient(135deg, #00d4aa, #00b8d4);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    font-style: italic;
+  }
+
+  .tagline {
+    font-size: clamp(16px, 2.5vw, 28px);
+    font-weight: 300;
+    color: rgba(0, 229, 160, 0.7);
+    font-style: italic;
+    letter-spacing: 2px;
+    margin-top: 12px;
+  }
+
+  /* ─── 廣告圍欄 ─── */
+  .ad-board {
+    position: absolute;
+    bottom: 140px;
+    left: 0;
+    right: 0;
+    height: 48px;
+    overflow: hidden;
+    z-index: 5;
+    background: linear-gradient(90deg, #008b8b, #009a8a, #00a88a, #009a8a, #008b8b);
+    border-top: 2px solid rgba(0, 229, 160, 0.3);
+    border-bottom: 2px solid rgba(0, 229, 160, 0.3);
+  }
+
+  .ad-scroll {
+    display: flex;
+    align-items: center;
+    height: 100%;
+    animation: scrollAd 20s linear infinite;
+    white-space: nowrap;
+  }
+
+  @keyframes scrollAd {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(-50%); }
+  }
+
+  .ad-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 0 32px;
+    font-size: 18px;
+    font-weight: 700;
+    color: #fff;
+    letter-spacing: 1px;
+  }
+
+  /* ─── START ─── */
+  .start-btn-wrapper {
+    position: absolute;
+    bottom: 50px;
+    z-index: 20;
+  }
+
+  .start-btn {
+    font-family: 'Outfit', sans-serif;
+    font-size: 28px;
+    font-weight: 900;
+    letter-spacing: 4px;
+    color: #0a1a12;
+    background: #fff;
+    border: none;
+    border-radius: 60px;
+    padding: 18px 80px;
+    cursor: pointer;
+    box-shadow: 0 4px 30px rgba(255,255,255,0.3), 0 0 60px rgba(0,229,160,0.2);
+    transition: all 0.25s ease;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .start-btn::before {
+    content: '';
+    position: absolute;
+    inset: -2px;
+    border-radius: 62px;
+    background: linear-gradient(135deg, #00e5a0, #00b8d4, #fff, #00e5a0);
+    z-index: -1;
+    animation: shimmer 3s linear infinite;
+    background-size: 300% 300%;
+  }
+
+  @keyframes shimmer {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+  }
+
+  .start-btn:hover {
+    transform: scale(1.06);
+    box-shadow: 0 6px 40px rgba(255,255,255,0.4), 0 0 80px rgba(0,229,160,0.3);
+  }
+
+  .start-btn:active { transform: scale(0.98); }
+
+  /* ─── 粒子 ─── */
+  .particle {
+    position: absolute;
+    bottom: -10px;
+    background: rgba(0, 229, 160, 0.6);
+    border-radius: 50%;
+    animation: rise linear infinite;
+    pointer-events: none;
+  }
+
+  @keyframes rise {
+    0% { transform: translateY(0) scale(1); opacity: 0; }
+    10% { opacity: 0.4; }
+    90% { opacity: 0.1; }
+    100% { transform: translateY(-100vh) scale(0.3); opacity: 0; }
+  }
+</style>
+</head>
+<body>
+
+<div class="start-screen">
+  <!-- 背景 -->
+  <div class="bg-layer">
+    <canvas id="bgCanvas"></canvas>
+    <div class="bg-overlay"></div>
+  </div>
+
+  <!-- 品牌 -->
+  <div class="top-branding">
+    <div class="hisense-logo">Hisense</div>
+    <svg width="32" height="36" viewBox="0 0 32 36" fill="none">
+      <path d="M16 2L28 8V20C28 28 16 34 16 34S4 28 4 20V8L16 2Z" fill="#C8A84E" stroke="#9A7B2E" stroke-width="1"/>
+      <text x="16" y="22" text-anchor="middle" font-size="8" font-weight="bold" fill="#1a3a2a" font-family="serif">FIFA</text>
+    </svg>
+    <div class="sponsor-text">OFFICIAL SPONSOR</div>
+  </div>
+
+  <!-- 標題 -->
+  <div class="center-content">
+    <div class="ball-icon">
+      <svg width="48" height="48" viewBox="0 0 48 48" fill="none">
+        <circle cx="24" cy="24" r="20" stroke="#00e5a0" stroke-width="2" fill="none"/>
+        <path d="M24 4 L30 14 L24 18 L18 14Z" stroke="#00e5a0" stroke-width="1.5" fill="none"/>
+        <path d="M44 24 L34 30 L30 24 L34 18Z" stroke="#00e5a0" stroke-width="1.5" fill="none"/>
+        <path d="M24 44 L18 34 L24 30 L30 34Z" stroke="#00e5a0" stroke-width="1.5" fill="none"/>
+        <path d="M4 24 L14 18 L18 24 L14 30Z" stroke="#00e5a0" stroke-width="1.5" fill="none"/>
+      </svg>
+    </div>
+    <h1 class="main-title">
+      <span class="title-vr">VR </span>
+      <span class="title-penalty">Penalty </span>
+      <span class="title-kick">Kick</span>
+    </h1>
+    <p class="tagline">Innovating A Brighter Life</p>
+  </div>
+
+  <!-- 廣告圍欄 -->
+  <div class="ad-board">
+    <div class="ad-scroll" id="adScroll"></div>
+  </div>
+
+  <!-- START -->
+  <div class="start-btn-wrapper">
+    <button class="start-btn" onclick="window.location.href='tutorial-screen.html'">START</button>
+  </div>
+
+  <!-- 粒子 -->
+  <div id="particles"></div>
+</div>
+
+<script>
+// ─── 背景畫布 ───
+const canvas = document.getElementById('bgCanvas');
+const ctx = canvas.getContext('2d');
+
+function drawBg() {
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+  const w = canvas.width, h = canvas.height;
+
+  // 天空
+  const sky = ctx.createLinearGradient(0, 0, 0, h * 0.55);
+  sky.addColorStop(0, '#0a1a12');
+  sky.addColorStop(0.5, '#0f2a1e');
+  sky.addColorStop(1, '#1a4a32');
+  ctx.fillStyle = sky;
+  ctx.fillRect(0, 0, w, h * 0.55);
+
+  // 看台
+  ctx.fillStyle = '#0d1a14';
+  ctx.fillRect(0, h * 0.2, w, h * 0.25);
+
+  // 觀眾
+  const colors = ['#e24b4a', '#f5c842', '#00b8d4', '#ff6b35', '#fff'];
+  for (let i = 0; i < 200; i++) {
+    ctx.fillStyle = colors[Math.floor(Math.random() * colors.length)];
+    ctx.globalAlpha = 0.3 + Math.random() * 0.4;
+    ctx.beginPath();
+    ctx.arc(Math.random() * w, h * 0.22 + Math.random() * h * 0.2, 1.5, 0, Math.PI * 2);
+    ctx.fill();
+  }
+  ctx.globalAlpha = 1;
+
+  // 草地
+  const grass = ctx.createLinearGradient(0, h * 0.5, 0, h);
+  grass.addColorStop(0, '#1e6b3a');
+  grass.addColorStop(0.3, '#2d8a4e');
+  grass.addColorStop(1, '#1a5a32');
+  ctx.fillStyle = grass;
+  ctx.fillRect(0, h * 0.5, w, h * 0.5);
+
+  // 草地紋理
+  ctx.strokeStyle = 'rgba(255,255,255,0.05)';
+  ctx.lineWidth = 1;
+  for (let i = 0; i < 8; i++) {
+    ctx.beginPath();
+    ctx.moveTo(0, h * 0.55 + i * h * 0.06);
+    ctx.lineTo(w, h * 0.55 + i * h * 0.06);
+    ctx.stroke();
+  }
+
+  // 球門
+  const cx = w * 0.5, gt = h * 0.32, gw = w * 0.35, gh = h * 0.2;
+  ctx.strokeStyle = 'rgba(255,255,255,0.6)';
+  ctx.lineWidth = 3;
+  ctx.beginPath();
+  ctx.moveTo(cx - gw/2, gt + gh);
+  ctx.lineTo(cx - gw/2, gt);
+  ctx.lineTo(cx + gw/2, gt);
+  ctx.lineTo(cx + gw/2, gt + gh);
+  ctx.stroke();
+
+  // 網
+  ctx.strokeStyle = 'rgba(255,255,255,0.08)';
+  ctx.lineWidth = 1;
+  for (let c = 0; c <= 16; c++) {
+    const x = cx - gw/2 + (gw/16) * c;
+    ctx.beginPath(); ctx.moveTo(x, gt); ctx.lineTo(x, gt + gh); ctx.stroke();
+  }
+  for (let r = 0; r <= 6; r++) {
+    const y = gt + (gh/6) * r;
+    ctx.beginPath(); ctx.moveTo(cx - gw/2, y); ctx.lineTo(cx + gw/2, y); ctx.stroke();
+  }
+
+  // 泛光
+  [0.2, 0.8].forEach(px => {
+    const g = ctx.createRadialGradient(w * px, h * 0.05, 0, w * px, h * 0.05, h * 0.5);
+    g.addColorStop(0, `rgba(255,245,230,${px < 0.5 ? 0.15 : 0.1})`);
+    g.addColorStop(1, 'rgba(255,245,230,0)');
+    ctx.fillStyle = g;
+    ctx.fillRect(0, 0, w, h);
+  });
+}
+
+drawBg();
+window.addEventListener('resize', drawBg);
+
+// ─── 廣告圍欄 ───
+const adScroll = document.getElementById('adScroll');
+const fifaSvg = `<svg width="20" height="22" viewBox="0 0 32 36" fill="none" style="opacity:0.8"><path d="M16 2L28 8V20C28 28 16 34 16 34S4 28 4 20V8L16 2Z" fill="#C8A84E"/></svg>`;
+let adHTML = '';
+for (let i = 0; i < 24; i++) {
+  adHTML += `<span class="ad-item">Hisense ${fifaSvg}</span>`;
+}
+adScroll.innerHTML = adHTML;
+
+// ─── 粒子 ───
+const particlesEl = document.getElementById('particles');
+for (let i = 0; i < 20; i++) {
+  const p = document.createElement('div');
+  p.className = 'particle';
+  const size = 2 + Math.random() * 4;
+  p.style.cssText = `
+    width:${size}px; height:${size}px;
+    left:${Math.random() * 100}%;
+    animation-delay:${Math.random() * 8}s;
+    animation-duration:${6 + Math.random() * 8}s;
+    opacity:${0.2 + Math.random() * 0.4};
+  `;
+  particlesEl.appendChild(p);
+}
+</script>
+</body>
+</html>
