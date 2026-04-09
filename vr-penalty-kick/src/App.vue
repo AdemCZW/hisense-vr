@@ -3,7 +3,7 @@
     <!-- 持久 3D 球場背景 -->
     <div ref="sceneContainer" class="scene-bg"></div>
     <!-- 漸層濾鏡 — 蓋在 3D 場景上方 -->
-    <div class="gradient-filter" :class="{ hidden: store.screen === 'game' }"></div>
+    <div class="gradient-filter" :class="{ hidden: store.screen !== 'start' }"></div>
 
     <!-- UI 覆蓋層 — 交叉淡入淡出（不加 mode，新舊同時存在短暫重疊） -->
     <Transition name="fade">
@@ -293,7 +293,7 @@ html, body {
     rgba(74, 154, 144, 0.3) 75%,
     rgba(208, 236, 232, 0.2) 100%
   );
-  transition: opacity 0.6s ease;
+  transition: opacity 1.5s ease;
 }
 
 .gradient-filter.hidden {
