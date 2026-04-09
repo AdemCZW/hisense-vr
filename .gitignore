@@ -1,0 +1,6 @@
+# 外層原型 HTML
+*.html
+CONTEXT.md
+
+# OS
+.DS_Store
