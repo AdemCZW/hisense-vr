@@ -12,9 +12,7 @@
 
     <!-- START 按鈕 -->
     <div class="start-btn-wrapper">
-      <button class="start-btn" @click="$emit('start')">
-        <span class="start-btn-text">START</span>
-      </button>
+      <button class="start-btn" @click="$emit('start')">START</button>
     </div>
 
     <!-- 粒子動畫 -->
@@ -82,7 +80,7 @@ function particleStyle(n) {
 }
 
 .slogan-img {
-  width: clamp(300px, 50vw, 600px);
+  width: clamp(400px, 65vw, 800px);
   height: auto;
   filter: drop-shadow(0 4px 30px rgba(0,0,0,0.5));
   animation: float 3s ease-in-out infinite;
@@ -96,52 +94,33 @@ function particleStyle(n) {
 /* ─── START 按鈕 ─── */
 .start-btn-wrapper {
   position: absolute;
-  bottom: 50px;
+  bottom: 60px;
   z-index: 20;
   pointer-events: auto;
 }
 
 .start-btn {
   font-family: 'Outfit', sans-serif;
-  font-size: 28px;
-  font-weight: 900;
-  letter-spacing: 4px;
-  color: #0a1a12;
-  background: #ffffff;
+  font-size: 26px;
+  font-weight: 800;
+  letter-spacing: 3px;
+  color: #ffffff;
+  background: linear-gradient(135deg, #2a7a6a, #1a6a5a);
   border: none;
-  border-radius: 60px;
+  border-radius: 50px;
   padding: 18px 80px;
   cursor: pointer;
-  box-shadow: 0 4px 30px rgba(255, 255, 255, 0.3), 0 0 60px rgba(0, 229, 160, 0.2);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
   transition: all 0.25s ease;
-  position: relative;
-  overflow: hidden;
-}
-
-.start-btn::before {
-  content: '';
-  position: absolute;
-  inset: -2px;
-  border-radius: 62px;
-  background: linear-gradient(135deg, #00e5a0, #00b8d4, #ffffff, #00e5a0);
-  z-index: -1;
-  animation: shimmer 3s linear infinite;
-  background-size: 300% 300%;
-}
-
-@keyframes shimmer {
-  0% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
-  100% { background-position: 0% 50%; }
 }
 
 .start-btn:hover {
-  transform: scale(1.06);
-  box-shadow: 0 6px 40px rgba(255, 255, 255, 0.4), 0 0 80px rgba(0, 229, 160, 0.3);
+  transform: scale(1.05);
+  box-shadow: 0 6px 30px rgba(0, 0, 0, 0.4);
+  background: linear-gradient(135deg, #338a78, #1e7a68);
 }
 
-.start-btn:active { transform: scale(0.98); }
-.start-btn-text { position: relative; z-index: 1; }
+.start-btn:active { transform: scale(0.97); }
 
 /* ─── 粒子 ─── */
 .particles {

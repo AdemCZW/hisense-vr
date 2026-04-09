@@ -90,7 +90,7 @@ onMounted(() => {
     0.1,
     200
   )
-  camera.position.set(0, 3, 5)
+  camera.position.set(0, 1.6, -6)
 
   // Renderer
   renderer = new THREE.WebGLRenderer({ antialias: true })
@@ -105,15 +105,15 @@ onMounted(() => {
 
   // OrbitControls — 非遊戲時自動旋轉
   controls = new OrbitControls(camera, renderer.domElement)
-  controls.target.set(0, 1.2, -15)
+  controls.target.set(0, 1.0, -18)
   controls.enableDamping = true
   controls.dampingFactor = 0.05
   controls.enableZoom = false
   controls.enablePan = false
-  controls.autoRotate = true
-  controls.autoRotateSpeed = 0.6
-  controls.minPolarAngle = Math.PI * 0.25
-  controls.maxPolarAngle = Math.PI * 0.6
+  controls.autoRotate = false
+  controls.autoRotateSpeed = 0
+  controls.minPolarAngle = Math.PI * 0.3
+  controls.maxPolarAngle = Math.PI * 0.55
 
   // Lighting
   const ambient = new THREE.HemisphereLight(0x87ceeb, 0x2d5a27, 0.6)
@@ -219,11 +219,11 @@ watch(() => store.screen, (newScreen) => {
     controls.autoRotate = false
     if (previewBall) previewBall.visible = false
   } else {
-    // 離開遊戲：恢復 OrbitControls
+    // 離開遊戲：恢復場內視角
     controls.enabled = true
-    controls.autoRotate = true
-    camera.position.set(0, 3, 5)
-    controls.target.set(0, 1.2, -15)
+    controls.autoRotate = false
+    camera.position.set(0, 1.6, -6)
+    controls.target.set(0, 1.0, -18)
     camera.rotation.set(0, 0, 0)
     controls.update()
     if (previewBall) previewBall.visible = true
