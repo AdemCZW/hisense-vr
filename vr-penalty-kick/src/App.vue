@@ -1,5 +1,7 @@
 <template>
   <div id="app">
+    <!-- 漸層底色 -->
+    <div class="gradient-bg"></div>
     <!-- 持久 3D 球場背景 -->
     <div ref="sceneContainer" class="scene-bg"></div>
     <div class="scene-overlay" :class="{ dimmed: store.screen !== 'game' }"></div>
@@ -80,8 +82,8 @@ onMounted(() => {
 
   // Scene
   scene = new THREE.Scene()
-  scene.background = new THREE.Color(0x1a3a2a)
-  scene.fog = new THREE.FogExp2(0x1a3a2a, 0.012)
+  scene.background = null // 透明，露出下方漸層底色
+  scene.fog = new THREE.FogExp2(0x0f3d38, 0.015)
 
   // Camera
   camera = new THREE.PerspectiveCamera(
@@ -93,7 +95,7 @@ onMounted(() => {
   camera.position.set(0, 1.6, -6)
 
   // Renderer
-  renderer = new THREE.WebGLRenderer({ antialias: true })
+  renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true })
   renderer.setSize(window.innerWidth, window.innerHeight)
   renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
   renderer.shadowMap.enabled = true
@@ -265,11 +267,19 @@ html, body {
   position: relative;
 }
 
-/* 3D 場景背景 — 永遠存在 */
-.scene-bg {
+/* 漸層底色 — 最底層 */
+.gradient-bg {
   position: fixed;
   inset: 0;
   z-index: 0;
+  background: linear-gradient(180deg, #0a2e2a 0%, #0f3d38 25%, #1a5a52 50%, #4a9a90 75%, #d0ece8 100%);
+}
+
+/* 3D 場景背景 — 疊在漸層上 */
+.scene-bg {
+  position: fixed;
+  inset: 0;
+  z-index: 1;
 }
 
 .scene-bg canvas {
@@ -282,7 +292,7 @@ html, body {
 .scene-overlay {
   position: fixed;
   inset: 0;
-  z-index: 1;
+  z-index: 2;
   pointer-events: none;
   transition: background 0.6s ease;
   background: transparent;
