@@ -92,7 +92,6 @@ function particleStyle(n) {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  pointer-events: none;
 }
 
 /* ─── 左上角品牌 ─── */

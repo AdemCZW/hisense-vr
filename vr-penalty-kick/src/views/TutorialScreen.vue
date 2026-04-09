@@ -143,7 +143,6 @@ function handleNext() {
   position: fixed;
   inset: 0;
   z-index: 10;
-  pointer-events: none;
 }
 
 /* ─── 步驟指示器 ─── */

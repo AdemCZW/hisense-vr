@@ -134,7 +134,6 @@ onUnmounted(() => {
   position: fixed;
   inset: 0;
   z-index: 10;
-  pointer-events: none;
 }
 
 /* VR 鏡片遮罩 */

@@ -86,7 +86,7 @@ function handleBackToStart() {
 <style scoped>
 .result-screen {
   position: fixed; inset: 0;
-  z-index: 10; pointer-events: none;
+  z-index: 10;
   display: flex; flex-direction: column;
   align-items: center; justify-content: center;
   font-family: 'Outfit', sans-serif; color: #fff;

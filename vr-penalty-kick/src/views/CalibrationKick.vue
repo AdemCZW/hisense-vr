@@ -107,7 +107,7 @@ watch(() => store.screen, (screen) => {
 <style scoped>
 .calib-screen {
   position: fixed; inset: 0;
-  z-index: 10; pointer-events: none;
+  z-index: 10;
   font-family: 'Outfit', sans-serif; color: #fff;
 }
 
