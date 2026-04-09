@@ -4,35 +4,37 @@
     <div ref="sceneContainer" class="scene-bg"></div>
     <div class="scene-overlay" :class="{ dimmed: store.screen !== 'game' }"></div>
 
-    <!-- UI 覆蓋層 — 同一頁面，交叉淡入淡出 -->
-    <StartScreen
-      class="ui-panel"
-      :class="{ visible: store.screen === 'start' }"
-      @start="store.setScreen('tutorial')"
-    />
-    <TutorialScreen
-      class="ui-panel"
-      :class="{ visible: store.screen === 'tutorial' }"
-      @complete="store.setScreen('calibView')"
-    />
-    <CalibrationView
-      class="ui-panel"
-      :class="{ visible: store.screen === 'calibView' }"
-      @complete="store.setScreen('calibKick')"
-    />
-    <CalibrationKick
-      class="ui-panel"
-      :class="{ visible: store.screen === 'calibKick' }"
-      @complete="store.startGame()"
-    />
-    <GameView
-      class="ui-panel"
-      :class="{ visible: store.screen === 'game' }"
-    />
-    <ResultScreen
-      class="ui-panel"
-      :class="{ visible: store.screen === 'result' }"
-    />
+    <!-- UI 覆蓋層 — 交叉淡入淡出（不加 mode，新舊同時存在短暫重疊） -->
+    <Transition name="fade">
+      <StartScreen
+        v-if="store.screen === 'start'"
+        key="start"
+        @start="store.setScreen('tutorial')"
+      />
+      <TutorialScreen
+        v-else-if="store.screen === 'tutorial'"
+        key="tutorial"
+        @complete="store.setScreen('calibView')"
+      />
+      <CalibrationView
+        v-else-if="store.screen === 'calibView'"
+        key="calibView"
+        @complete="store.setScreen('calibKick')"
+      />
+      <CalibrationKick
+        v-else-if="store.screen === 'calibKick'"
+        key="calibKick"
+        @complete="store.startGame()"
+      />
+      <GameView
+        v-else-if="store.screen === 'game'"
+        key="game"
+      />
+      <ResultScreen
+        v-else-if="store.screen === 'result'"
+        key="result"
+      />
+    </Transition>
   </div>
 </template>
 
@@ -294,15 +296,22 @@ html, body {
   );
 }
 
-/* UI 面板 — 預設隱藏，交叉淡入淡出 */
-.ui-panel {
-  opacity: 0;
-  pointer-events: none;
+/* 交叉淡入淡出 — 離開和進入同時發生 */
+.fade-enter-active,
+.fade-leave-active {
   transition: opacity 0.5s ease;
 }
 
-.ui-panel.visible {
-  opacity: 1;
-  pointer-events: auto;
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+}
+
+/* 離開的元素用 absolute 讓兩層能重疊 */
+.fade-leave-active {
+  position: absolute;
+  inset: 0;
+  z-index: 10;
+  pointer-events: none;
 }
 </style>

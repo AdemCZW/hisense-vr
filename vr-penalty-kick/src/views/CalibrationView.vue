@@ -52,22 +52,19 @@
 </template>
 
 <script setup>
-import { ref, watch } from 'vue'
-import { useGameStore } from '../stores/gameStore.js'
+import { ref, onMounted, onUnmounted } from 'vue'
 
 defineEmits(['complete'])
-const store = useGameStore()
 const calibDone = ref(false)
 let timer = null
 
-// 進入此畫面才開始校準計時
-watch(() => store.screen, (screen) => {
-  if (screen === 'calibView') {
-    calibDone.value = false
-    timer = setTimeout(() => { calibDone.value = true }, 3000)
-  } else {
-    if (timer) { clearTimeout(timer); timer = null }
-  }
+onMounted(() => {
+  calibDone.value = false
+  timer = setTimeout(() => { calibDone.value = true }, 3000)
+})
+
+onUnmounted(() => {
+  if (timer) { clearTimeout(timer); timer = null }
 })
 </script>
 

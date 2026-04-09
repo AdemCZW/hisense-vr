@@ -62,7 +62,7 @@
 </template>
 
 <script setup>
-import { ref, inject, watch, onUnmounted, computed } from 'vue'
+import { ref, inject, onMounted, onUnmounted, computed } from 'vue'
 import { useGameStore } from '../stores/gameStore.js'
 import { GameManager } from '../game/GameManager.js'
 
@@ -87,8 +87,8 @@ const hintText = computed(() => {
 
 let gameManager = null
 
-function startGame() {
-  if (gameManager || !sceneApi) return
+onMounted(() => {
+  if (!sceneApi) return
 
   gameManager = new GameManager(sceneApi, store)
 
@@ -104,28 +104,14 @@ function startGame() {
   })
 
   gameManager.start()
-}
-
-function stopGame() {
-  if (!gameManager) return
-  gameManager.stop()
-  gameManager.dispose()
-  gameManager = null
-  messageText.value = ''
-  messageType.value = ''
-}
-
-// 監聽畫面切換 — 進入 game 時啟動，離開時清理
-watch(() => store.screen, (screen, oldScreen) => {
-  if (screen === 'game') {
-    startGame()
-  } else if (oldScreen === 'game') {
-    stopGame()
-  }
 })
 
 onUnmounted(() => {
-  stopGame()
+  if (gameManager) {
+    gameManager.stop()
+    gameManager.dispose()
+    gameManager = null
+  }
 })
 </script>
 
