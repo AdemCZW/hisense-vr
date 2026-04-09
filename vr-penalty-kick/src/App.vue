@@ -1,10 +1,9 @@
 <template>
   <div id="app">
-    <!-- 漸層底色 -->
-    <div class="gradient-bg"></div>
     <!-- 持久 3D 球場背景 -->
     <div ref="sceneContainer" class="scene-bg"></div>
-    <div class="scene-overlay" :class="{ dimmed: store.screen !== 'game' }"></div>
+    <!-- 漸層濾鏡 — 蓋在 3D 場景上方 -->
+    <div class="gradient-filter" :class="{ hidden: store.screen === 'game' }"></div>
 
     <!-- UI 覆蓋層 — 交叉淡入淡出（不加 mode，新舊同時存在短暫重疊） -->
     <Transition name="fade">
@@ -82,8 +81,8 @@ onMounted(() => {
 
   // Scene
   scene = new THREE.Scene()
-  scene.background = null // 透明，露出下方漸層底色
-  scene.fog = new THREE.FogExp2(0x0f3d38, 0.015)
+  scene.background = new THREE.Color(0x1a3a2a)
+  scene.fog = new THREE.FogExp2(0x1a3a2a, 0.012)
 
   // Camera
   camera = new THREE.PerspectiveCamera(
@@ -95,7 +94,7 @@ onMounted(() => {
   camera.position.set(0, 1.6, -6)
 
   // Renderer
-  renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true })
+  renderer = new THREE.WebGLRenderer({ antialias: true })
   renderer.setSize(window.innerWidth, window.innerHeight)
   renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
   renderer.shadowMap.enabled = true
@@ -267,19 +266,11 @@ html, body {
   position: relative;
 }
 
-/* 漸層底色 — 最底層 */
-.gradient-bg {
-  position: fixed;
-  inset: 0;
-  z-index: 0;
-  background: linear-gradient(180deg, #0a2e2a 0%, #0f3d38 25%, #1a5a52 50%, #4a9a90 75%, #d0ece8 100%);
-}
-
-/* 3D 場景背景 — 疊在漸層上 */
+/* 3D 場景背景 */
 .scene-bg {
   position: fixed;
   inset: 0;
-  z-index: 1;
+  z-index: 0;
 }
 
 .scene-bg canvas {
@@ -288,22 +279,25 @@ html, body {
   height: 100%;
 }
 
-/* 半透明遮罩 — 非遊戲時壓暗背景 */
-.scene-overlay {
+/* 漸層濾鏡 — 蓋在 3D 場景上面 */
+.gradient-filter {
   position: fixed;
   inset: 0;
-  z-index: 2;
+  z-index: 1;
   pointer-events: none;
-  transition: background 0.6s ease;
-  background: transparent;
+  background: linear-gradient(
+    180deg,
+    rgba(10, 46, 42, 0.75) 0%,
+    rgba(15, 61, 56, 0.6) 25%,
+    rgba(26, 90, 82, 0.45) 50%,
+    rgba(74, 154, 144, 0.3) 75%,
+    rgba(208, 236, 232, 0.2) 100%
+  );
+  transition: opacity 0.6s ease;
 }
 
-.scene-overlay.dimmed {
-  background: radial-gradient(
-    ellipse 90% 80% at 50% 45%,
-    rgba(10, 26, 18, 0.2),
-    rgba(10, 26, 18, 0.6)
-  );
+.gradient-filter.hidden {
+  opacity: 0;
 }
 
 /* 交叉淡入淡出 — 離開和進入同時發生 */
