@@ -1,36 +1,13 @@
 <template>
   <div class="start-screen">
-    <!-- 左上角 Hisense + FIFA -->
+    <!-- 右上角 FIFA Logo -->
     <div class="top-branding">
-      <div class="hisense-logo">Hisense</div>
-      <div class="fifa-badge">
-        <svg width="32" height="36" viewBox="0 0 32 36" fill="none">
-          <path d="M16 2L28 8V20C28 28 16 34 16 34S4 28 4 20V8L16 2Z" fill="#C8A84E" stroke="#9A7B2E" stroke-width="1"/>
-          <text x="16" y="22" text-anchor="middle" font-size="8" font-weight="bold" fill="#1a3a2a" font-family="serif">FIFA</text>
-        </svg>
-      </div>
-      <div class="sponsor-text">OFFICIAL SPONSOR</div>
+      <img src="../assets/images/1-logo@4x.png" alt="FIFA World Cup" class="logo-img" />
     </div>
 
-    <!-- 中央主標題 -->
+    <!-- 中央標語圖片 -->
     <div class="center-content">
-      <div class="ball-icon">
-        <svg width="48" height="48" viewBox="0 0 48 48" fill="none">
-          <circle cx="24" cy="24" r="20" stroke="#00e5a0" stroke-width="2" fill="none"/>
-          <path d="M24 4 L30 14 L24 18 L18 14Z" stroke="#00e5a0" stroke-width="1.5" fill="none"/>
-          <path d="M44 24 L34 30 L30 24 L34 18Z" stroke="#00e5a0" stroke-width="1.5" fill="none"/>
-          <path d="M24 44 L18 34 L24 30 L30 34Z" stroke="#00e5a0" stroke-width="1.5" fill="none"/>
-          <path d="M4 24 L14 18 L18 24 L14 30Z" stroke="#00e5a0" stroke-width="1.5" fill="none"/>
-        </svg>
-      </div>
-
-      <h1 class="main-title">
-        <span class="title-vr">VR </span>
-        <span class="title-penalty">Penalty </span>
-        <span class="title-kick">Kick</span>
-      </h1>
-
-      <p class="tagline">Innovating A Brighter Life</p>
+      <img src="../assets/images/1-slogan@4x.png" alt="VR Penalty Kick" class="slogan-img" />
     </div>
 
     <!-- Hisense 廣告圍欄 -->
@@ -94,89 +71,38 @@ function particleStyle(n) {
   justify-content: center;
 }
 
-/* ─── 左上角品牌 ─── */
+/* ─── 右上角 Logo ─── */
 .top-branding {
   position: absolute;
   top: 24px;
-  left: 28px;
-  display: flex;
-  align-items: center;
-  gap: 10px;
+  right: 28px;
   z-index: 10;
 }
 
-.hisense-logo {
-  font-size: 22px;
-  font-weight: 700;
-  color: #ffffff;
-  letter-spacing: 1px;
-  text-shadow: 0 2px 12px rgba(0,0,0,0.5);
+.logo-img {
+  height: 80px;
+  width: auto;
+  filter: drop-shadow(0 2px 12px rgba(0,0,0,0.5));
 }
 
-.fifa-badge { display: flex; align-items: center; }
-
-.sponsor-text {
-  font-size: 9px;
-  font-weight: 500;
-  color: rgba(255, 255, 255, 0.5);
-  letter-spacing: 1.5px;
-  text-transform: uppercase;
-  margin-left: -4px;
-}
-
-/* ─── 中央主標題 ─── */
+/* ─── 中央標語圖片 ─── */
 .center-content {
   position: relative;
   z-index: 10;
   text-align: center;
-  margin-top: -60px;
+  margin-top: -40px;
 }
 
-.ball-icon {
-  margin-bottom: 12px;
+.slogan-img {
+  width: clamp(300px, 50vw, 600px);
+  height: auto;
+  filter: drop-shadow(0 4px 30px rgba(0,0,0,0.5));
   animation: float 3s ease-in-out infinite;
 }
 
 @keyframes float {
   0%, 100% { transform: translateY(0); }
   50% { transform: translateY(-8px); }
-}
-
-.main-title {
-  font-size: clamp(48px, 8vw, 96px);
-  font-weight: 900;
-  letter-spacing: -2px;
-  line-height: 1.1;
-  margin: 0;
-  text-shadow: 0 4px 40px rgba(0, 229, 160, 0.3), 0 2px 20px rgba(0,0,0,0.6);
-}
-
-.title-vr { color: #ffffff; font-style: italic; }
-
-.title-penalty {
-  background: linear-gradient(135deg, #00e5a0, #00d4aa);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  font-style: italic;
-}
-
-.title-kick {
-  background: linear-gradient(135deg, #00d4aa, #00b8d4);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  font-style: italic;
-}
-
-.tagline {
-  font-size: clamp(16px, 2.5vw, 28px);
-  font-weight: 300;
-  color: rgba(0, 229, 160, 0.7);
-  font-style: italic;
-  letter-spacing: 2px;
-  margin-top: 12px;
-  text-shadow: 0 2px 12px rgba(0,0,0,0.5);
 }
 
 /* ─── 廣告圍欄 ─── */
