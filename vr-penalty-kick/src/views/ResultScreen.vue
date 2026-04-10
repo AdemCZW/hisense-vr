@@ -8,19 +8,19 @@
           <circle cx="60" cy="60" r="52" fill="#f5c842" stroke="#d4a017" stroke-width="3"/>
           <circle cx="60" cy="60" r="42" fill="none" stroke="#d4a017" stroke-width="1.5" stroke-dasharray="4,4"/>
           <text x="60" y="55" text-anchor="middle" font-size="20" font-weight="900" fill="#8a6914" font-family="Outfit">GOLD</text>
-          <text x="60" y="78" text-anchor="middle" font-size="32" font-weight="900" fill="#8a6914" font-family="Outfit">★</text>
+          <text x="60" y="78" text-anchor="middle" font-size="32" font-weight="900" fill="#8a6914" font-family="Outfit">&#9733;</text>
         </svg>
         <svg v-else-if="store.medal === 'silver'" viewBox="0 0 120 120">
           <circle cx="60" cy="60" r="52" fill="#c0c0c0" stroke="#999" stroke-width="3"/>
           <circle cx="60" cy="60" r="42" fill="none" stroke="#999" stroke-width="1.5" stroke-dasharray="4,4"/>
           <text x="60" y="55" text-anchor="middle" font-size="18" font-weight="900" fill="#666" font-family="Outfit">SILVER</text>
-          <text x="60" y="78" text-anchor="middle" font-size="32" font-weight="900" fill="#666" font-family="Outfit">★</text>
+          <text x="60" y="78" text-anchor="middle" font-size="32" font-weight="900" fill="#666" font-family="Outfit">&#9733;</text>
         </svg>
         <svg v-else-if="store.medal === 'bronze'" viewBox="0 0 120 120">
           <circle cx="60" cy="60" r="52" fill="#cd7f32" stroke="#a5651e" stroke-width="3"/>
           <circle cx="60" cy="60" r="42" fill="none" stroke="#a5651e" stroke-width="1.5" stroke-dasharray="4,4"/>
           <text x="60" y="55" text-anchor="middle" font-size="16" font-weight="900" fill="#7a4c1a" font-family="Outfit">BRONZE</text>
-          <text x="60" y="78" text-anchor="middle" font-size="32" font-weight="900" fill="#7a4c1a" font-family="Outfit">★</text>
+          <text x="60" y="78" text-anchor="middle" font-size="32" font-weight="900" fill="#7a4c1a" font-family="Outfit">&#9733;</text>
         </svg>
         <svg v-else viewBox="0 0 120 120">
           <circle cx="60" cy="60" r="52" fill="#333" stroke="#555" stroke-width="3"/>
@@ -63,24 +63,15 @@
 
     <!-- 操作按鈕 -->
     <div class="action-buttons">
-      <button class="btn-primary" @click="handlePlayAgain">PLAY AGAIN</button>
-      <button class="btn-secondary" @click="handleBackToStart">Back to Start</button>
+      <button class="btn-primary" @click="store.startGame()">PLAY AGAIN</button>
+      <button class="btn-secondary" @click="store.resetAll()">Back to Start</button>
     </div>
   </div>
 </template>
 
 <script setup>
 import { useGameStore } from '../stores/gameStore.js'
-
 const store = useGameStore()
-
-function handlePlayAgain() {
-  store.startGame()
-}
-
-function handleBackToStart() {
-  store.resetAll()
-}
 </script>
 
 <style scoped>
@@ -95,6 +86,7 @@ function handleBackToStart() {
 /* 獎章 */
 .medal-area {
   position: relative; z-index: 10; margin-bottom: 16px;
+  animation: medalDrop 0.6s ease both;
 }
 
 .medal-glow {
@@ -108,16 +100,14 @@ function handleBackToStart() {
 
 .medal-icon {
   width: 120px; height: 120px;
-  animation: medal-float 3s ease-in-out infinite;
-}
-
-@keyframes medal-float {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-10px); }
+  animation: medal-float 3s ease-in-out 0.6s infinite;
 }
 
 /* 成績 */
-.score-area { position: relative; z-index: 10; text-align: center; margin-bottom: 20px; }
+.score-area {
+  position: relative; z-index: 10; text-align: center; margin-bottom: 20px;
+  animation: fadeSlideUp 0.6s ease 0.3s both;
+}
 
 .score-title {
   font-size: clamp(32px, 6vw, 56px); font-weight: 900; letter-spacing: 4px;
@@ -132,7 +122,10 @@ function handleBackToStart() {
 .score-total { color: rgba(255,255,255,0.4); }
 
 /* 回合明細 */
-.round-summary { display: flex; gap: 16px; z-index: 10; margin-bottom: 24px; }
+.round-summary {
+  display: flex; gap: 16px; z-index: 10; margin-bottom: 24px;
+  animation: fadeSlideUp 0.6s ease 0.5s both;
+}
 
 .round-item {
   padding: 8px 20px; border-radius: 12px;
@@ -151,7 +144,10 @@ function handleBackToStart() {
 .round-item.miss .round-result { color: #e24b4a; }
 
 /* QR */
-.qr-area { z-index: 10; margin-bottom: 16px; }
+.qr-area {
+  z-index: 10; margin-bottom: 16px;
+  animation: fadeSlideUp 0.6s ease 0.7s both;
+}
 .qr-placeholder {
   display: flex; align-items: center; gap: 16px;
   padding: 16px 24px;
@@ -165,17 +161,19 @@ function handleBackToStart() {
   position: absolute; bottom: 30px; z-index: 20;
   display: flex; gap: 16px;
   pointer-events: auto;
+  animation: fadeSlideUp 0.6s ease 0.9s both;
 }
 
 .btn-primary {
   font-family: 'Outfit', sans-serif;
-  font-size: 20px; font-weight: 900; letter-spacing: 3px;
-  color: #0a1a12; background: #ffffff;
+  font-size: 20px; font-weight: 800; letter-spacing: 3px;
+  color: #fff;
+  background: linear-gradient(135deg, #2a7a6a, #1a6a5a);
   border: none; border-radius: 50px;
   padding: 16px 60px; cursor: pointer;
-  box-shadow: 0 4px 30px rgba(255,255,255,0.3); transition: all 0.25s;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.3); transition: all 0.25s;
 }
-.btn-primary:hover { transform: scale(1.05); box-shadow: 0 6px 40px rgba(255,255,255,0.4); }
+.btn-primary:hover { transform: scale(1.05); box-shadow: 0 6px 32px rgba(0,229,160,0.2); }
 
 .btn-secondary {
   font-family: 'Outfit', sans-serif;
@@ -187,4 +185,19 @@ function handleBackToStart() {
   cursor: pointer; transition: all 0.2s;
 }
 .btn-secondary:hover { background: rgba(255,255,255,0.2); color: #fff; }
+
+@keyframes medalDrop {
+  from { opacity: 0; transform: translateY(-40px) scale(0.6); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@keyframes medal-float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
+@keyframes fadeSlideUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
 </style>

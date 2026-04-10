@@ -11,9 +11,12 @@
       >
         <span class="step-num">{{ i + 1 }}</span>
       </div>
+      <div class="step-line">
+        <div class="step-line-fill" :style="{ width: `${(currentStep / (steps.length - 1)) * 100}%` }"></div>
+      </div>
     </div>
 
-    <!-- ════════ cut2: 裝備佩戴提示 ════════ -->
+    <!-- cut2: 裝備佩戴提示 -->
     <transition name="slide" mode="out-in">
       <div v-if="currentStep === 0" key="equip" class="tutorial-content">
         <div class="dialog-card">
@@ -54,7 +57,7 @@
       </div>
     </transition>
 
-    <!-- ════════ cut3: 體驗協助提醒 ════════ -->
+    <!-- cut3: 體驗協助提醒 -->
     <transition name="slide" mode="out-in">
       <div v-if="currentStep === 1" key="assist" class="tutorial-content">
         <div class="dialog-card">
@@ -90,18 +93,6 @@
       </div>
     </transition>
 
-    <!-- 廣告圍欄 -->
-    <div class="ad-board">
-      <div class="ad-board-scroll">
-        <span v-for="n in 12" :key="n" class="ad-item">
-          <span class="ad-hisense">Hisense</span>
-          <svg class="ad-fifa-icon" width="18" height="20" viewBox="0 0 32 36" fill="none">
-            <path d="M16 2L28 8V20C28 28 16 34 16 34S4 28 4 20V8L16 2Z" fill="#C8A84E"/>
-          </svg>
-        </span>
-      </div>
-    </div>
-
     <!-- 導航按鈕 -->
     <div class="nav-buttons">
       <button v-if="currentStep > 0" class="nav-btn nav-prev" @click="currentStep--">Back</button>
@@ -119,8 +110,8 @@ const emit = defineEmits(['complete'])
 const currentStep = ref(0)
 
 const steps = [
-  { id: 'equipment', title: '裝備佩戴提示' },
-  { id: 'assist', title: '體驗協助提醒' },
+  { id: 'equipment' },
+  { id: 'assist' },
 ]
 
 const equipment = [
@@ -153,26 +144,30 @@ function handleNext() {
   transform: translateX(-50%);
   display: flex;
   align-items: center;
-  gap: 40px;
+  gap: 60px;
   z-index: 20;
   pointer-events: auto;
+  animation: fadeIn 0.6s ease both;
 }
 
 .step-dot {
-  width: 36px; height: 36px;
+  width: 40px; height: 40px;
   border-radius: 50%;
-  border: 2px solid rgba(255, 255, 255, 0.2);
+  border: 2px solid rgba(255, 255, 255, 0.25);
   display: flex; align-items: center; justify-content: center;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: all 0.4s ease;
   background: rgba(0, 0, 0, 0.5);
   backdrop-filter: blur(8px);
+  position: relative;
+  z-index: 2;
 }
 
 .step-dot.active {
   border-color: #00e5a0;
-  background: rgba(0, 229, 160, 0.15);
-  box-shadow: 0 0 20px rgba(0, 229, 160, 0.3);
+  background: rgba(0, 229, 160, 0.2);
+  box-shadow: 0 0 24px rgba(0, 229, 160, 0.35);
+  transform: scale(1.1);
 }
 
 .step-dot.done { border-color: #00e5a0; background: #00e5a0; }
@@ -180,10 +175,27 @@ function handleNext() {
 .step-num { font-size: 14px; font-weight: 700; color: rgba(255,255,255,0.6); }
 .step-dot.active .step-num { color: #00e5a0; }
 
+.step-line {
+  position: absolute;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  width: 60px; height: 2px;
+  background: rgba(255,255,255,0.15);
+  border-radius: 1px;
+  z-index: 1;
+}
+
+.step-line-fill {
+  height: 100%;
+  background: #00e5a0;
+  border-radius: 1px;
+  transition: width 0.4s ease;
+}
+
 /* ─── 對話卡片 ─── */
 .tutorial-content {
   position: absolute;
-  inset: 80px 0 120px 0;
+  inset: 90px 0 90px 0;
   z-index: 10;
   display: flex;
   align-items: center;
@@ -191,17 +203,18 @@ function handleNext() {
 }
 
 .dialog-card {
-  background: rgba(0, 0, 0, 0.6);
-  backdrop-filter: blur(16px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 24px;
-  padding: 32px 40px;
+  background: rgba(0, 10, 8, 0.7);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(0, 229, 160, 0.1);
+  border-radius: 28px;
+  padding: 36px 44px;
   max-width: 700px;
   width: 90%;
   display: flex;
   flex-direction: column;
   align-items: center;
   pointer-events: auto;
+  box-shadow: 0 8px 40px rgba(0,0,0,0.4);
 }
 
 /* ─── 警告 ─── */
@@ -223,7 +236,7 @@ function handleNext() {
 .alert-text {
   font-size: 16px; font-weight: 500;
   color: rgba(255,255,255,0.9);
-  line-height: 1.5; margin: 0;
+  line-height: 1.6; margin: 0;
 }
 
 /* ─── 裝備列 ─── */
@@ -250,12 +263,14 @@ function handleNext() {
 
 .equip-image-box {
   width: 150px; height: 90px;
-  background: rgba(255,255,255,0.06);
-  border: 1px solid rgba(255,255,255,0.12);
-  border-radius: 12px;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 14px;
   display: flex; align-items: center; justify-content: center;
+  transition: border-color 0.3s ease;
 }
 
+.equip-image-box:hover { border-color: rgba(0,229,160,0.3); }
 .equip-svg { width: 90px; height: 60px; }
 
 /* ─── 協助人物 ─── */
@@ -290,62 +305,46 @@ function handleNext() {
   box-shadow: 0 4px 20px rgba(0,0,0,0.3);
 }
 
-/* ─── 廣告圍欄 ─── */
-.ad-board {
-  position: absolute;
-  bottom: 80px; left: 0; right: 0;
-  height: 40px; overflow: hidden; z-index: 5;
-  background: linear-gradient(90deg, rgba(0,139,139,0.85), rgba(0,154,138,0.85), rgba(0,168,138,0.85), rgba(0,154,138,0.85), rgba(0,139,139,0.85));
-  border-top: 1px solid rgba(0,229,160,0.2);
-  border-bottom: 1px solid rgba(0,229,160,0.2);
-}
-
-.ad-board-scroll {
-  display: flex; align-items: center; height: 100%;
-  animation: scrollAd 20s linear infinite;
-  white-space: nowrap;
-}
-
-@keyframes scrollAd { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
-
-.ad-item { display: inline-flex; align-items: center; gap: 6px; padding: 0 28px; }
-.ad-hisense { font-size: 16px; font-weight: 700; color: #fff; letter-spacing: 1px; }
-.ad-fifa-icon { opacity: 0.7; }
-
 /* ─── 導航按鈕 ─── */
 .nav-buttons {
   position: absolute;
-  bottom: 24px; left: 50%;
+  bottom: 28px; left: 50%;
   transform: translateX(-50%);
   display: flex; gap: 16px; z-index: 20;
   pointer-events: auto;
+  animation: fadeIn 0.6s ease 0.3s both;
 }
 
 .nav-btn {
   font-family: 'Outfit', sans-serif;
-  font-size: 16px; font-weight: 600;
-  padding: 12px 40px;
+  font-size: 16px; font-weight: 700;
+  padding: 14px 44px;
   border: none; border-radius: 50px;
-  cursor: pointer; transition: all 0.2s ease; letter-spacing: 0.5px;
+  cursor: pointer; transition: all 0.25s ease; letter-spacing: 1px;
 }
 
 .nav-prev {
-  background: rgba(255,255,255,0.15);
+  background: rgba(255,255,255,0.1);
   color: #ccc;
-  border: 1px solid rgba(255,255,255,0.2);
+  border: 1px solid rgba(255,255,255,0.15);
   backdrop-filter: blur(8px);
 }
-.nav-prev:hover { background: rgba(255,255,255,0.25); color: #fff; }
+.nav-prev:hover { background: rgba(255,255,255,0.2); color: #fff; }
 
 .nav-next {
-  background: linear-gradient(135deg, #00e5a0, #00b8d4);
-  color: #0a1a12;
+  background: linear-gradient(135deg, #2a7a6a, #1a6a5a);
+  color: #fff;
 }
-.nav-next:hover { transform: scale(1.04); filter: brightness(1.1); }
-.nav-next:active { transform: scale(0.98); }
+.nav-next:hover { transform: scale(1.04); box-shadow: 0 4px 20px rgba(0,229,160,0.2); }
+.nav-next:active { transform: scale(0.97); }
 
-/* 過渡 */
+/* ─── 過渡 ─── */
 .slide-enter-active, .slide-leave-active { transition: all 0.4s ease; }
-.slide-enter-from { opacity: 0; transform: translateX(40px); }
-.slide-leave-to { opacity: 0; transform: translateX(-40px); }
+.slide-enter-from { opacity: 0; transform: translateX(30px); }
+.slide-leave-to { opacity: 0; transform: translateX(-30px); }
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
 </style>

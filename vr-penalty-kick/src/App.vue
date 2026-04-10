@@ -300,22 +300,21 @@ html, body {
   opacity: 0;
 }
 
-/* 交叉淡入淡出 — 離開和進入同時發生 */
-.fade-enter-active,
+/* 交叉淡入淡出 */
+.fade-enter-active {
+  transition: opacity 0.6s ease 0.1s;
+}
+
 .fade-leave-active {
-  transition: opacity 0.5s ease;
+  transition: opacity 0.4s ease;
+  position: absolute;
+  inset: 0;
+  z-index: 10;
+  pointer-events: none;
 }
 
 .fade-enter-from,
 .fade-leave-to {
   opacity: 0;
-}
-
-/* 離開的元素用 absolute 讓兩層能重疊 */
-.fade-leave-active {
-  position: absolute;
-  inset: 0;
-  z-index: 10;
-  pointer-events: none;
 }
 </style>

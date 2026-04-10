@@ -1,6 +1,6 @@
 <template>
   <div class="start-screen">
-    <!-- 右上角 FIFA Logo -->
+    <!-- 左上角 FIFA Logo -->
     <div class="top-branding">
       <img src="../assets/images/1-logo@4x.png" alt="FIFA World Cup" class="logo-img" />
     </div>
@@ -12,16 +12,18 @@
 
     <!-- START 按鈕 -->
     <div class="start-btn-wrapper">
-      <button class="start-btn" @click="$emit('start')">START</button>
+      <button class="start-btn" @click="$emit('start')">
+        <span class="btn-text">START</span>
+      </button>
     </div>
 
     <!-- 粒子動畫 -->
     <div class="particles">
       <div
-        v-for="n in 20"
+        v-for="n in 15"
         :key="n"
         class="particle"
-        :style="particleStyle(n)"
+        :style="particleStyle()"
       ></div>
     </div>
   </div>
@@ -30,18 +32,14 @@
 <script setup>
 defineEmits(['start'])
 
-function particleStyle(n) {
-  const size = 2 + Math.random() * 4
-  const x = Math.random() * 100
-  const delay = Math.random() * 8
-  const duration = 6 + Math.random() * 8
+function particleStyle() {
+  const size = 2 + Math.random() * 3
   return {
     width: `${size}px`,
     height: `${size}px`,
-    left: `${x}%`,
-    animationDelay: `${delay}s`,
-    animationDuration: `${duration}s`,
-    opacity: 0.2 + Math.random() * 0.4,
+    left: `${Math.random() * 100}%`,
+    animationDelay: `${Math.random() * 8}s`,
+    animationDuration: `${6 + Math.random() * 8}s`,
   }
 }
 </script>
@@ -57,38 +55,33 @@ function particleStyle(n) {
   justify-content: center;
 }
 
-/* ─── 右上角 Logo ─── */
+/* ─── Logo ─── */
 .top-branding {
   position: absolute;
   top: 24px;
   left: 28px;
   z-index: 10;
+  animation: fadeSlideDown 0.8s ease both;
 }
 
 .logo-img {
   height: 80px;
   width: auto;
-  filter: drop-shadow(0 2px 12px rgba(0,0,0,0.5));
+  filter: drop-shadow(0 2px 16px rgba(0,0,0,0.6));
 }
 
-/* ─── 中央標語圖片 ─── */
+/* ─── 中央標語 ─── */
 .center-content {
   position: relative;
   z-index: 10;
   text-align: center;
-  margin-top: -40px;
+  animation: fadeSlideUp 1s ease 0.2s both;
 }
 
 .slogan-img {
   width: clamp(400px, 65vw, 800px);
   height: auto;
-  filter: drop-shadow(0 4px 30px rgba(0,0,0,0.5));
-  animation: float 3s ease-in-out infinite;
-}
-
-@keyframes float {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-8px); }
+  filter: drop-shadow(0 6px 40px rgba(0,0,0,0.6));
 }
 
 /* ─── START 按鈕 ─── */
@@ -97,30 +90,47 @@ function particleStyle(n) {
   bottom: 60px;
   z-index: 20;
   pointer-events: auto;
+  animation: fadeSlideUp 0.8s ease 0.6s both;
 }
 
 .start-btn {
   font-family: 'Outfit', sans-serif;
-  font-size: 26px;
+  font-size: 24px;
   font-weight: 800;
-  letter-spacing: 3px;
+  letter-spacing: 4px;
   color: #ffffff;
   background: linear-gradient(135deg, #2a7a6a, #1a6a5a);
   border: none;
   border-radius: 50px;
   padding: 18px 80px;
   cursor: pointer;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 4px 24px rgba(0,0,0,0.3), 0 0 40px rgba(0,229,160,0.1);
   transition: all 0.25s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.start-btn::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 50px;
+  box-shadow: 0 0 20px rgba(0,229,160,0.3), inset 0 0 20px rgba(0,229,160,0.05);
+  animation: btnPulse 2.5s ease-in-out infinite;
 }
 
 .start-btn:hover {
-  transform: scale(1.05);
-  box-shadow: 0 6px 30px rgba(0, 0, 0, 0.4);
-  background: linear-gradient(135deg, #338a78, #1e7a68);
+  transform: scale(1.06);
+  box-shadow: 0 6px 32px rgba(0,0,0,0.4), 0 0 50px rgba(0,229,160,0.2);
 }
 
 .start-btn:active { transform: scale(0.97); }
+.btn-text { position: relative; z-index: 1; }
+
+@keyframes btnPulse {
+  0%, 100% { opacity: 0.4; }
+  50% { opacity: 1; }
+}
 
 /* ─── 粒子 ─── */
 .particles {
@@ -133,15 +143,26 @@ function particleStyle(n) {
 .particle {
   position: absolute;
   bottom: -10px;
-  background: rgba(0, 229, 160, 0.6);
+  background: rgba(0, 229, 160, 0.4);
   border-radius: 50%;
   animation: rise linear infinite;
 }
 
+/* ─── 動畫 ─── */
+@keyframes fadeSlideUp {
+  from { opacity: 0; transform: translateY(30px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeSlideDown {
+  from { opacity: 0; transform: translateY(-20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
 @keyframes rise {
   0% { transform: translateY(0) scale(1); opacity: 0; }
-  10% { opacity: 0.4; }
-  90% { opacity: 0.1; }
-  100% { transform: translateY(-100vh) scale(0.3); opacity: 0; }
+  10% { opacity: 0.3; }
+  90% { opacity: 0.05; }
+  100% { transform: translateY(-100vh) scale(0.2); opacity: 0; }
 }
 </style>

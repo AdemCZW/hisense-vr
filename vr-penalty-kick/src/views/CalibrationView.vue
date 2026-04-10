@@ -47,7 +47,9 @@
     </div>
 
     <!-- Next -->
-    <button v-if="calibDone" class="next-btn" @click="$emit('complete')">Next Step</button>
+    <Transition name="btn-pop">
+      <button v-if="calibDone" class="next-btn" @click="$emit('complete')">Next Step</button>
+    </Transition>
   </div>
 </template>
 
@@ -81,6 +83,7 @@ onUnmounted(() => {
   display: flex; align-items: center; justify-content: center; gap: 12px;
   z-index: 20; box-shadow: 0 2px 20px rgba(0,0,0,0.5);
   backdrop-filter: blur(8px);
+  animation: fadeSlideDown 0.5s ease both;
 }
 .step-header-icon {
   width: 32px; height: 32px; background: rgba(0,0,0,0.3);
@@ -90,8 +93,9 @@ onUnmounted(() => {
 .step-header-title { font-size: 22px; font-weight: 700; font-style: italic; }
 
 .instruction-area {
-  position: absolute; top: 72px; left: 50%; transform: translateX(-50%);
+  position: absolute; top: 76px; left: 50%; transform: translateX(-50%);
   text-align: center; z-index: 15;
+  animation: fadeIn 0.6s ease 0.3s both;
 }
 .instruction-main { font-size: 22px; font-weight: 500; margin-bottom: 8px; text-shadow: 0 2px 12px rgba(0,0,0,0.6); }
 .instruction-sub { font-size: 14px; color: rgba(0,229,160,0.7); font-style: italic; text-shadow: 0 1px 8px rgba(0,0,0,0.5); }
@@ -143,7 +147,7 @@ onUnmounted(() => {
   box-shadow: 0 0 30px rgba(0,229,160,0.6); width: 60px; height: 60px;
 }
 .calib-check { display: none; position: absolute; z-index: 3; }
-.calib-check.show { display: block; }
+.calib-check.show { display: block; animation: popIn 0.4s ease; }
 .calib-check svg { width: 36px; height: 36px; }
 
 .calibration-target.done .calib-ring-outer { animation: none; border: 2px solid #00e5a0; }
@@ -163,14 +167,21 @@ onUnmounted(() => {
   z-index: 20; font-family: 'Outfit', sans-serif;
   font-size: 18px; font-weight: 700; padding: 14px 50px;
   border: none; border-radius: 50px;
-  background: linear-gradient(135deg, #00e5a0, #00b8d4);
-  color: #0a1a12; cursor: pointer; transition: all 0.25s;
-  pointer-events: auto;
+  background: linear-gradient(135deg, #2a7a6a, #1a6a5a);
+  color: #fff; cursor: pointer; transition: all 0.25s;
+  pointer-events: auto; letter-spacing: 1px;
 }
-.next-btn:hover { transform: translateX(-50%) scale(1.05); }
+.next-btn:hover { transform: translateX(-50%) scale(1.05); box-shadow: 0 4px 20px rgba(0,229,160,0.2); }
+
+.btn-pop-enter-active { animation: popIn 0.4s ease; }
+.btn-pop-leave-active { transition: opacity 0.2s; }
+.btn-pop-leave-to { opacity: 0; }
 
 @keyframes spin { to { transform: rotate(360deg); } }
 @keyframes spin-reverse { to { transform: rotate(-360deg); } }
 @keyframes calib-pulse { 0% { transform: scale(0.6); opacity: 0.8; } 100% { transform: scale(1.3); opacity: 0; } }
 @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+@keyframes popIn { from { transform: scale(0.5); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+@keyframes fadeSlideDown { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 </style>

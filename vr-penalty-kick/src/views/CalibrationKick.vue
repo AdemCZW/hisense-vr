@@ -76,7 +76,9 @@
     </div>
 
     <!-- Start Game -->
-    <button v-if="detected" class="next-btn" @click="$emit('complete')">Start Game!</button>
+    <Transition name="btn-pop">
+      <button v-if="detected" class="next-btn" @click="$emit('complete')">Start Game!</button>
+    </Transition>
   </div>
 </template>
 
@@ -87,9 +89,7 @@ defineEmits(['complete'])
 const detected = ref(false)
 let timer = null
 
-function handleKick() {
-  detected.value = true
-}
+function handleKick() { detected.value = true }
 
 onMounted(() => {
   detected.value = false
@@ -114,6 +114,7 @@ onUnmounted(() => {
   display: flex; align-items: center; justify-content: center; gap: 12px;
   z-index: 20; box-shadow: 0 2px 20px rgba(0,0,0,0.5);
   backdrop-filter: blur(8px);
+  animation: fadeSlideDown 0.5s ease both;
 }
 .step-header-icon {
   width: 32px; height: 32px; background: rgba(0,0,0,0.3);
@@ -122,8 +123,9 @@ onUnmounted(() => {
 .step-header-title { font-size: 22px; font-weight: 700; font-style: italic; }
 
 .instruction-area {
-  position: absolute; top: 72px; left: 50%; transform: translateX(-50%);
+  position: absolute; top: 76px; left: 50%; transform: translateX(-50%);
   text-align: center; z-index: 15; width: 90%; max-width: 540px;
+  animation: fadeIn 0.6s ease 0.3s both;
 }
 .instruction-main { font-size: 24px; font-weight: 600; margin-bottom: 12px; text-shadow: 0 2px 12px rgba(0,0,0,0.6); }
 .instruction-sub { font-size: 13px; color: rgba(0,229,160,0.7); font-style: italic; line-height: 1.6; text-shadow: 0 1px 8px rgba(0,0,0,0.5); }
@@ -149,8 +151,11 @@ onUnmounted(() => {
 }
 .football-wrapper.detected .football-glow {
   width: 160px; height: 160px;
-  background: radial-gradient(circle, rgba(245,200,66,0.5) 0%, rgba(245,200,66,0.15) 50%, transparent 70%);
+  background: radial-gradient(circle, rgba(0,229,160,0.4) 0%, rgba(0,229,160,0.1) 50%, transparent 70%);
   animation: glow-pulse 1.5s ease-in-out infinite;
+}
+.football-wrapper.detected .football-svg {
+  filter: drop-shadow(0 4px 30px rgba(0,229,160,0.5));
 }
 
 .feet-area {
@@ -164,7 +169,7 @@ onUnmounted(() => {
   position: absolute; bottom: 36%; left: 50%; transform: translateX(-50%);
   z-index: 15; text-align: center;
 }
-.kick-status-text { font-size: 18px; font-weight: 600; font-style: italic; color: rgba(255,255,255,0.5); text-shadow: 0 2px 8px rgba(0,0,0,0.5); }
+.kick-status-text { font-size: 18px; font-weight: 600; font-style: italic; color: rgba(255,255,255,0.5); text-shadow: 0 2px 8px rgba(0,0,0,0.5); transition: all 0.4s; }
 .kick-status-text.waiting { animation: subtle-blink 2s ease-in-out infinite; }
 .kick-status-text.detected { color: #00e5a0; font-size: 22px; }
 
@@ -173,13 +178,20 @@ onUnmounted(() => {
   z-index: 20; font-family: 'Outfit', sans-serif;
   font-size: 18px; font-weight: 700; padding: 14px 50px;
   border: none; border-radius: 50px;
-  background: linear-gradient(135deg, #00e5a0, #00b8d4);
-  color: #0a1a12; cursor: pointer; transition: all 0.25s; letter-spacing: 1px;
+  background: linear-gradient(135deg, #2a7a6a, #1a6a5a);
+  color: #fff; cursor: pointer; transition: all 0.25s; letter-spacing: 1px;
   pointer-events: auto;
 }
-.next-btn:hover { transform: translateX(-50%) scale(1.05); filter: brightness(1.1); }
+.next-btn:hover { transform: translateX(-50%) scale(1.05); box-shadow: 0 4px 20px rgba(0,229,160,0.2); }
+
+.btn-pop-enter-active { animation: popIn 0.4s ease; }
+.btn-pop-leave-active { transition: opacity 0.2s; }
+.btn-pop-leave-to { opacity: 0; }
 
 @keyframes glow-pulse { 0%,100% { transform: scale(1); opacity: 0.8; } 50% { transform: scale(1.15); opacity: 1; } }
 @keyframes kick-hint { 0%,100% { transform: translateX(-50%) translateY(0); opacity: 0.6; } 50% { transform: translateX(-50%) translateY(-15px); opacity: 1; } }
 @keyframes subtle-blink { 0%,100% { opacity: 0.7; } 50% { opacity: 0.3; } }
+@keyframes popIn { from { transform: translateX(-50%) scale(0.5); opacity: 0; } to { transform: translateX(-50%) scale(1); opacity: 1; } }
+@keyframes fadeSlideDown { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 </style>
