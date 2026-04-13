@@ -200,22 +200,22 @@ function handleNext() {
 /* ── Step1: 左上 ── */
 .equip-s1 {
   width: 22%;
-  top: 5%;
-  left: 5%;
+  top: 16%;
+  left: 28%;
 }
 
 /* ── Step2: 左下 ── */
 .equip-s2 {
   width: 21%;
-  top: 58%;
-  left: 3%;
+  top: 53%;
+  left: 33%;
 }
 
 /* ── Step3: 右側 ── */
 .equip-s3 {
   width: 22%;
-  top: 15%;
-  right: 3%;
+  top: 17%;
+  right: 26%;
 }
 
 
