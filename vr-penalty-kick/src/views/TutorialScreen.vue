@@ -34,38 +34,21 @@
 
     <!-- ════════ Page 2: 體驗協助 ════════ -->
     <transition name="slide" mode="out-in">
-      <div v-if="currentStep === 1" key="assist" class="tutorial-content">
-        <div class="dialog-card">
-          <div class="alert-banner">
-            <div class="hint-badge hint-badge-sm">
-              <span class="hint-exclaim">!</span>
-            </div>
-            <p class="alert-text">
-              If you feel uncomfortable or have any questions,<br>
-              please raise your hand and inform the staff.
-            </p>
+      <div v-if="currentStep === 1" key="assist" class="tutorial-content assist-page">
+        <!-- 頂部提示文字 -->
+        <div class="hint-bar">
+          <div class="hint-badge">
+            <span class="hint-exclaim">!</span>
           </div>
+          <p class="hint-text">
+            If you feel uncomfortable or have any questions,<br>
+            please raise your hand and inform the staff.
+          </p>
+        </div>
 
-          <div class="assist-figure">
-            <svg viewBox="0 0 200 280" class="figure-svg">
-              <ellipse cx="100" cy="42" rx="20" ry="22" fill="#d4d4d4"/>
-              <rect x="74" y="32" width="52" height="22" rx="7" fill="#e8e8e8" stroke="#ccc"/>
-              <rect x="78" y="36" width="18" height="14" rx="4" fill="#333"/>
-              <rect x="104" y="36" width="18" height="14" rx="4" fill="#333"/>
-              <path d="M82 64 Q100 70 118 64 L122 150 Q100 158 78 150Z" fill="#f0f0f0"/>
-              <path d="M78 68 L58 120 L64 124 L82 76" fill="#f0f0f0"/>
-              <path d="M122 68 L150 32 L156 34 L128 72" fill="#f0f0f0"/>
-              <circle cx="152" cy="26" r="9" fill="#d4d4d4"/>
-              <path d="M84 148 L78 240 L92 240 L100 170 L108 240 L122 240 L116 148Z" fill="#f0f0f0"/>
-              <rect x="74" y="236" width="20" height="10" rx="4" fill="#2a6a4a"/>
-              <rect x="106" y="236" width="20" height="10" rx="4" fill="#2a6a4a"/>
-            </svg>
-            <div class="exclaim-badge"><span>!</span></div>
-          </div>
-
-          <div class="kick-prompt-box">
-            Kick your foot once to start the game.
-          </div>
+        <!-- 人物圖（含紅色驚嘆號 + 底部文字） -->
+        <div class="assist-center">
+          <img src="../assets/images/5-user@4x.png" alt="Raise hand" class="assist-img" />
         </div>
       </div>
     </transition>
@@ -215,80 +198,22 @@ onUnmounted(() => { if (timer) clearTimeout(timer) })
 }
 
 
-/* ─── Page 2: 對話卡片 ─── */
-.dialog-card {
-  background: rgba(0, 10, 8, 0.7);
-  backdrop-filter: blur(20px);
-  border: 1px solid rgba(0, 229, 160, 0.1);
-  border-radius: clamp(16px, 2vw, 32px);
-  padding: clamp(24px, 3vh, 44px) clamp(28px, 3.5vw, 52px);
-  max-width: 50vw;
-  width: 90%;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  pointer-events: auto;
-  box-shadow: 0 0.8vh 3vw rgba(0,0,0,0.4);
-  margin-top: 5vh;
+/* ─── Page 2: 協助頁 ─── */
+.assist-page {
+  justify-content: flex-start;
 }
 
-.alert-banner {
+.assist-center {
+  flex: 1;
   display: flex;
   align-items: center;
-  gap: clamp(8px, 1vw, 16px);
-  margin-bottom: clamp(16px, 2vh, 28px);
-  width: 100%;
+  justify-content: center;
 }
 
-.alert-text {
-  font-size: clamp(13px, 1.2vw, 18px);
-  font-weight: 500;
-  color: rgba(255,255,255,0.9);
-  line-height: 1.6;
-  margin: 0;
-}
-
-.assist-figure {
-  position: relative;
-  margin: 1vh auto 2vh;
-}
-
-.figure-svg {
-  width: clamp(100px, 12vw, 160px);
-  height: auto;
-  filter: drop-shadow(0 0.4vh 1.5vw rgba(0,0,0,0.5));
-}
-
-.exclaim-badge {
-  position: absolute;
-  top: 0.5vh;
-  right: -1vw;
-  width: clamp(24px, 2.5vw, 36px);
-  height: clamp(24px, 2.5vw, 36px);
-  border-radius: 50%;
-  background: #e24b4a;
-  display: flex; align-items: center; justify-content: center;
-  border: 0.2vw solid #fff;
-  animation: pulse-badge 2s ease-in-out infinite;
-}
-
-.exclaim-badge span {
-  color: #fff;
-  font-size: clamp(14px, 1.4vw, 20px);
-  font-weight: 900;
-}
-
-@keyframes pulse-badge { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.15); } }
-
-.kick-prompt-box {
-  background: #ffffff;
-  color: #e24b4a;
-  font-size: clamp(13px, 1.2vw, 18px);
-  font-weight: 700;
-  font-style: italic;
-  padding: clamp(8px, 1vh, 14px) clamp(20px, 2.5vw, 40px);
-  border-radius: 5vw;
-  box-shadow: 0 0.4vh 1.5vw rgba(0,0,0,0.3);
+.assist-img {
+  height: clamp(200px, 50vh, 500px);
+  width: auto;
+  filter: drop-shadow(0 0.8vh 2.5vw rgba(0,0,0,0.5));
 }
 
 
