@@ -70,34 +70,35 @@
       </div>
     </transition>
 
-    <!-- 導航按鈕 -->
-    <div class="nav-buttons">
-      <button v-if="currentStep > 0" class="nav-btn nav-prev" @click="currentStep--">Back</button>
-      <button class="nav-btn nav-next" @click="handleNext">
-        {{ currentStep < steps.length - 1 ? 'Next' : 'Ready!' }}
-      </button>
-    </div>
   </div>
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, onMounted, onUnmounted } from 'vue'
 
 const emit = defineEmits(['complete'])
 const currentStep = ref(0)
+let timer = null
 
 const steps = [
   { id: 'equipment' },
   { id: 'assist' },
 ]
 
-function handleNext() {
-  if (currentStep.value < steps.length - 1) {
-    currentStep.value++
-  } else {
-    emit('complete')
-  }
+function autoNext() {
+  if (timer) clearTimeout(timer)
+  timer = setTimeout(() => {
+    if (currentStep.value < steps.length - 1) {
+      currentStep.value++
+      autoNext()
+    } else {
+      emit('complete')
+    }
+  }, 3000)
 }
+
+onMounted(() => { autoNext() })
+onUnmounted(() => { if (timer) clearTimeout(timer) })
 </script>
 
 <style scoped>
@@ -295,48 +296,6 @@ function handleNext() {
   box-shadow: 0 0.4vh 1.5vw rgba(0,0,0,0.3);
 }
 
-/* ─── 導航按鈕 ─── */
-.nav-buttons {
-  position: absolute;
-  bottom: 3vh;
-  left: 50%;
-  transform: translateX(-50%);
-  display: flex;
-  gap: clamp(10px, 1.2vw, 20px);
-  z-index: 20;
-  pointer-events: auto;
-  animation: fadeIn 0.6s ease 0.3s both;
-}
-
-.nav-btn {
-  font-family: 'Outfit', sans-serif;
-  font-size: clamp(14px, 1.3vw, 20px);
-  font-weight: 700;
-  padding: clamp(10px, 1.4vh, 18px) clamp(28px, 3.5vw, 56px);
-  border: none;
-  border-radius: 5vw;
-  cursor: pointer;
-  transition: all 0.25s ease;
-  letter-spacing: 0.05em;
-}
-
-.nav-prev {
-  background: rgba(255,255,255,0.1);
-  color: #ccc;
-  border: 1px solid rgba(255,255,255,0.15);
-  backdrop-filter: blur(8px);
-}
-.nav-prev:hover { background: rgba(255,255,255,0.2); color: #fff; }
-
-.nav-next {
-  font-weight: 800;
-  font-style: italic;
-  color: #1a6a5a;
-  background: #ffffff;
-  box-shadow: 0 0.4vh 1.2vw rgba(0,0,0,0.25);
-}
-.nav-next:hover { transform: scale(1.04); box-shadow: 0 0.6vh 1.8vw rgba(0,0,0,0.3); }
-.nav-next:active { transform: scale(0.97); }
 
 /* ─── 過渡 ─── */
 .slide-enter-active, .slide-leave-active { transition: all 0.4s ease; }
