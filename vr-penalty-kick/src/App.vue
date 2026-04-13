@@ -209,18 +209,17 @@ function animate() {
 }
 
 // 監聽畫面切換，調整攝影機和控制器
-watch(() => store.screen, (newScreen) => {
+watch(() => store.screen, (newScreen, oldScreen) => {
   if (!scene || !camera || !controls) return
 
   const previewBall = scene.getObjectByName('previewBall')
 
   if (newScreen === 'game') {
-    // 進入遊戲：停用 OrbitControls，切到第一人稱
     controls.enabled = false
     controls.autoRotate = false
     if (previewBall) previewBall.visible = false
-  } else {
-    // 離開遊戲：恢復場內視角
+  } else if (oldScreen === 'game') {
+    // 只有從遊戲離開時才重設攝影機
     controls.enabled = true
     controls.autoRotate = true
     camera.position.set(0, 1.6, -6)
