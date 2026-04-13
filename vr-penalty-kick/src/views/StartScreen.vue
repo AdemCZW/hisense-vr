@@ -31,10 +31,10 @@
 defineEmits(['start'])
 
 function particleStyle() {
-  const size = 2 + Math.random() * 3
+  const size = 0.2 + Math.random() * 0.3 // vw
   return {
-    width: `${size}px`,
-    height: `${size}px`,
+    width: `${size}vw`,
+    height: `${size}vw`,
     left: `${Math.random() * 100}%`,
     animationDelay: `${Math.random() * 8}s`,
     animationDuration: `${6 + Math.random() * 8}s`,
@@ -56,16 +56,16 @@ function particleStyle() {
 /* ─── Logo ─── */
 .top-branding {
   position: absolute;
-  top: 24px;
-  left: 28px;
+  top: 2.5vh;
+  left: 2vw;
   z-index: 10;
   animation: fadeSlideDown 0.8s ease both;
 }
 
 .logo-img {
-  height: 80px;
+  height: clamp(50px, 6vh, 90px);
   width: auto;
-  filter: drop-shadow(0 2px 16px rgba(0,0,0,0.6));
+  filter: drop-shadow(0 0.3vh 1.2vw rgba(0,0,0,0.6));
 }
 
 /* ─── 中央標語 ─── */
@@ -77,15 +77,15 @@ function particleStyle() {
 }
 
 .slogan-img {
-  width: clamp(400px, 65vw, 800px);
+  width: clamp(280px, 55vw, 850px);
   height: auto;
-  filter: drop-shadow(0 6px 40px rgba(0,0,0,0.6));
+  filter: drop-shadow(0 0.5vh 3vw rgba(0,0,0,0.6));
 }
 
 /* ─── START 按鈕 ─── */
 .start-btn-wrapper {
   position: absolute;
-  bottom: 60px;
+  bottom: 6vh;
   z-index: 20;
   pointer-events: auto;
   animation: fadeSlideUp 0.8s ease 0.6s both;
@@ -93,23 +93,23 @@ function particleStyle() {
 
 .start-btn {
   font-family: 'Outfit', sans-serif;
-  font-size: 28px;
+  font-size: clamp(18px, 2vw, 32px);
   font-weight: 800;
   font-style: italic;
-  letter-spacing: 3px;
+  letter-spacing: 0.2em;
   color: #1a6a5a;
   background: #ffffff;
   border: none;
-  border-radius: 60px;
-  padding: 20px 90px;
+  border-radius: 5vw;
+  padding: 1.8vh 6vw;
   cursor: pointer;
-  box-shadow: 0 4px 24px rgba(0,0,0,0.25);
+  box-shadow: 0 0.4vh 2vw rgba(0,0,0,0.25);
   transition: all 0.25s ease;
 }
 
 .start-btn:hover {
   transform: scale(1.05);
-  box-shadow: 0 6px 32px rgba(0,0,0,0.35);
+  box-shadow: 0 0.6vh 2.5vw rgba(0,0,0,0.35);
 }
 
 .start-btn:active { transform: scale(0.97); }
@@ -124,7 +124,7 @@ function particleStyle() {
 
 .particle {
   position: absolute;
-  bottom: -10px;
+  bottom: -1vh;
   background: rgba(0, 229, 160, 0.4);
   border-radius: 50%;
   animation: rise linear infinite;
@@ -132,12 +132,12 @@ function particleStyle() {
 
 /* ─── 動畫 ─── */
 @keyframes fadeSlideUp {
-  from { opacity: 0; transform: translateY(30px); }
+  from { opacity: 0; transform: translateY(3vh); }
   to { opacity: 1; transform: translateY(0); }
 }
 
 @keyframes fadeSlideDown {
-  from { opacity: 0; transform: translateY(-20px); }
+  from { opacity: 0; transform: translateY(-2vh); }
   to { opacity: 1; transform: translateY(0); }
 }
 
