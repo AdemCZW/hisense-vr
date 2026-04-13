@@ -201,9 +201,11 @@ function handleNext() {
 .equip-left {
   display: flex;
   flex-direction: column;
-  gap: 2vh;
+  justify-content: space-between;
   align-items: flex-end;
-  flex: 0 0 20vw;
+  flex: 0 0 18vw;
+  height: 80%;
+  margin-right: -2vw;
 }
 
 .equip-center {
@@ -235,8 +237,9 @@ function handleNext() {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  flex: 0 0 20vw;
-  padding-top: 3vh;
+  flex: 0 0 18vw;
+  margin-left: -2vw;
+  margin-top: -5vh;
 }
 
 .equip-item {
