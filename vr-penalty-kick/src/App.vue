@@ -111,8 +111,8 @@ onMounted(() => {
   controls.dampingFactor = 0.05
   controls.enableZoom = false
   controls.enablePan = false
-  controls.autoRotate = false
-  controls.autoRotateSpeed = 0
+  controls.autoRotate = true
+  controls.autoRotateSpeed = 0.5
   controls.minPolarAngle = Math.PI * 0.3
   controls.maxPolarAngle = Math.PI * 0.55
 
@@ -222,7 +222,7 @@ watch(() => store.screen, (newScreen) => {
   } else {
     // 離開遊戲：恢復場內視角
     controls.enabled = true
-    controls.autoRotate = false
+    controls.autoRotate = true
     camera.position.set(0, 1.6, -6)
     controls.target.set(0, 1.0, -18)
     camera.rotation.set(0, 0, 0)
