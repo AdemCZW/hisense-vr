@@ -1,21 +1,5 @@
 <template>
   <div class="tutorial-screen">
-    <!-- 步驟指示器 -->
-    <div class="step-indicator">
-      <div
-        v-for="(step, i) in steps"
-        :key="i"
-        class="step-dot"
-        :class="{ active: currentStep === i, done: currentStep > i }"
-        @click="currentStep = i"
-      >
-        <span class="step-num">{{ i + 1 }}</span>
-      </div>
-      <div class="step-line">
-        <div class="step-line-fill" :style="{ width: `${(currentStep / (steps.length - 1)) * 100}%` }"></div>
-      </div>
-    </div>
-
     <!-- ════════ Page 1: 裝備佩戴 ════════ -->
     <transition name="slide" mode="out-in">
       <div v-if="currentStep === 0" key="equip" class="tutorial-content">
@@ -144,66 +128,10 @@ function handleNext() {
   z-index: 10;
 }
 
-/* ─── 步驟指示器 ─── */
-.step-indicator {
-  position: absolute;
-  top: 28px;
-  left: 50%;
-  transform: translateX(-50%);
-  display: flex;
-  align-items: center;
-  gap: 60px;
-  z-index: 20;
-  pointer-events: auto;
-  animation: fadeIn 0.6s ease both;
-}
-
-.step-dot {
-  width: 40px; height: 40px;
-  border-radius: 50%;
-  border: 2px solid rgba(255, 255, 255, 0.25);
-  display: flex; align-items: center; justify-content: center;
-  cursor: pointer;
-  transition: all 0.4s ease;
-  background: rgba(0, 0, 0, 0.5);
-  backdrop-filter: blur(8px);
-  position: relative;
-  z-index: 2;
-}
-
-.step-dot.active {
-  border-color: #00e5a0;
-  background: rgba(0, 229, 160, 0.2);
-  box-shadow: 0 0 24px rgba(0, 229, 160, 0.35);
-  transform: scale(1.1);
-}
-
-.step-dot.done { border-color: #00e5a0; background: #00e5a0; }
-.step-dot.done .step-num { color: #0a1a12; }
-.step-num { font-size: 14px; font-weight: 700; color: rgba(255,255,255,0.6); }
-.step-dot.active .step-num { color: #00e5a0; }
-
-.step-line {
-  position: absolute;
-  top: 50%; left: 50%;
-  transform: translate(-50%, -50%);
-  width: 60px; height: 2px;
-  background: rgba(255,255,255,0.15);
-  border-radius: 1px;
-  z-index: 1;
-}
-
-.step-line-fill {
-  height: 100%;
-  background: #00e5a0;
-  border-radius: 1px;
-  transition: width 0.4s ease;
-}
-
 /* ─── 教學內容區 ─── */
 .tutorial-content {
   position: absolute;
-  inset: 80px 0 80px 0;
+  inset: 20px 0 80px 0;
   z-index: 10;
   display: flex;
   flex-direction: column;
@@ -219,10 +147,10 @@ function handleNext() {
   background: rgba(20, 50, 40, 0.85);
   backdrop-filter: blur(12px);
   border-radius: 16px;
-  padding: 20px 32px;
-  margin-top: 10px;
-  margin-bottom: 10px;
-  max-width: 700px;
+  padding: 22px 36px;
+  margin-top: 16px;
+  margin-bottom: 16px;
+  max-width: 800px;
   width: 90%;
   animation: fadeSlideDown 0.6s ease both;
 }
@@ -255,8 +183,8 @@ function handleNext() {
 }
 
 .hint-text {
-  font-size: 18px;
-  font-weight: 600;
+  font-size: 20px;
+  font-weight: 700;
   color: #fff;
   line-height: 1.5;
   margin: 0;
@@ -280,7 +208,7 @@ function handleNext() {
   flex-direction: column;
   gap: 20px;
   align-items: flex-end;
-  flex: 0 0 220px;
+  flex: 0 0 260px;
 }
 
 .equip-center {
@@ -292,7 +220,7 @@ function handleNext() {
 }
 
 .user-img {
-  height: clamp(300px, 50vh, 440px);
+  height: clamp(350px, 58vh, 520px);
   width: auto;
   filter: drop-shadow(0 8px 30px rgba(0,0,0,0.5));
   position: relative;
@@ -312,7 +240,7 @@ function handleNext() {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  flex: 0 0 220px;
+  flex: 0 0 260px;
   padding-top: 20px;
 }
 
@@ -325,17 +253,17 @@ function handleNext() {
 }
 
 .equip-img-1 {
-  width: 200px;
+  width: 240px;
   height: auto;
 }
 
 .equip-img-2 {
-  width: 190px;
+  width: 230px;
   height: auto;
 }
 
 .equip-img-3 {
-  width: 200px;
+  width: 240px;
   height: auto;
 }
 
