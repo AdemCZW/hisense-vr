@@ -11,11 +11,11 @@
       <div class="circle-wrap" :class="{ done: calibDone }">
         <img src="../assets/images/7-circle@4x.png" alt="" class="circle-img" :class="{ spinning: !calibDone }" />
 
-        <!-- 黃色滑鼠圓點（校準中） -->
-        <div v-if="!calibDone" class="mouse-dot" :style="dotStyle"></div>
+        <!-- 黃色滑鼠圓點（校準中顯示，完成後固定在中心） -->
+        <div class="mouse-dot" :class="{ centered: calibDone }" :style="calibDone ? {} : dotStyle"></div>
 
-        <!-- 打勾動畫（校準完成） -->
-        <div v-if="calibDone" class="check-anim">
+        <!-- 打勾動畫（疊在黃色圓上方） -->
+        <div v-if="calibDone" class="check-anim" style="z-index:5">
           <svg viewBox="0 0 80 80" fill="none">
             <circle cx="40" cy="40" r="36" fill="rgba(0,229,160,0.15)"/>
             <circle cx="40" cy="40" r="28" fill="#00e5a0"/>
@@ -163,6 +163,12 @@ onUnmounted(() => {
   transform: translate(-50%, -50%);
   transition: left 0.1s ease-out, top 0.1s ease-out;
   z-index: 3;
+}
+
+.mouse-dot.centered {
+  left: 50% !important;
+  top: 50% !important;
+  transition: left 0.3s ease, top 0.3s ease;
 }
 
 /* 打勾動畫 */
