@@ -21,7 +21,9 @@
       <div v-if="currentStep === 0" key="equip" class="tutorial-content">
         <!-- 頂部提示文字 -->
         <div class="hint-bar">
-          <img src="../assets/images/2-hint@4x.png" alt="" class="hint-icon" />
+          <div class="hint-badge">
+            <span class="hint-exclaim">!</span>
+          </div>
           <p class="hint-text">
             Before the game begins, please follow the staff's<br>
             instructions to put on the equipment.
@@ -72,7 +74,9 @@
       <div v-if="currentStep === 1" key="assist" class="tutorial-content">
         <div class="dialog-card">
           <div class="alert-banner">
-            <img src="../assets/images/2-hint@4x.png" alt="" class="hint-icon-sm" />
+            <div class="hint-badge hint-badge-sm">
+              <span class="hint-exclaim">!</span>
+            </div>
             <p class="alert-text">
               If you feel uncomfortable or have any questions,<br>
               please raise your hand and inform the staff.
@@ -211,15 +215,43 @@ function handleNext() {
 .hint-bar {
   display: flex;
   align-items: center;
-  gap: 14px;
+  gap: 16px;
+  background: rgba(20, 50, 40, 0.85);
+  backdrop-filter: blur(12px);
+  border-radius: 16px;
+  padding: 20px 32px;
   margin-top: 10px;
   margin-bottom: 10px;
+  max-width: 700px;
+  width: 90%;
   animation: fadeSlideDown 0.6s ease both;
 }
 
-.hint-icon {
-  height: 36px;
-  width: auto;
+.hint-badge {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: #f5b731;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.hint-badge-sm {
+  width: 32px;
+  height: 32px;
+}
+
+.hint-exclaim {
+  font-size: 22px;
+  font-weight: 900;
+  color: #1a1a1a;
+  line-height: 1;
+}
+
+.hint-badge-sm .hint-exclaim {
+  font-size: 18px;
 }
 
 .hint-text {
@@ -228,7 +260,6 @@ function handleNext() {
   color: #fff;
   line-height: 1.5;
   margin: 0;
-  text-shadow: 0 2px 12px rgba(0,0,0,0.6);
 }
 
 /* ─── 裝備佈局（三欄） ─── */
@@ -332,8 +363,6 @@ function handleNext() {
   margin-bottom: 24px;
   width: 100%;
 }
-
-.hint-icon-sm { height: 28px; width: auto; }
 
 .alert-text {
   font-size: 16px; font-weight: 500;
