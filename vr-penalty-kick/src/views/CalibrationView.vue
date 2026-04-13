@@ -1,52 +1,34 @@
 <template>
   <div class="calib-screen" @mousemove="onMouseMove">
-    <!-- 頂部標題列 -->
-    <div class="step-header">
-      <div class="step-header-icon">
-        <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.5">
-          <rect x="3" y="7" width="18" height="10" rx="4" stroke="#fff"/>
-          <rect x="6" y="9" width="5" height="6" rx="2" fill="rgba(255,255,255,0.3)"/>
-          <rect x="13" y="9" width="5" height="6" rx="2" fill="rgba(255,255,255,0.3)"/>
-          <line x1="8" y1="17" x2="16" y2="17" stroke="#00e5a0" stroke-width="2" stroke-linecap="round"/>
-        </svg>
-      </div>
-      <div class="step-header-title">Step1. View Calibration</div>
+    <!-- 頂部標題 + 說明（圖片） -->
+    <div class="top-area">
+      <img src="../assets/images/7-step1@4x.png" alt="Step1" class="step-header-img" />
     </div>
 
-    <!-- 說明文字 -->
-    <div class="instruction-area">
-      <p class="instruction-main">Stand still and look at the dot in front of you.</p>
-      <p class="instruction-sub">*If you are not detected, please raise your hand for assistance.</p>
-    </div>
+    <!-- 中央準心區域 -->
+    <div class="center-area">
+      <!-- 準心圓環圖片（旋轉） -->
+      <div class="circle-wrap" :class="{ done: calibDone }">
+        <img src="../assets/images/7-circle@4x.png" alt="" class="circle-img" :class="{ spinning: !calibDone }" />
 
-    <!-- 校準準心 -->
-    <div class="calib-target" :class="{ done: calibDone }" :style="targetStyle">
-      <!-- 外圈旋轉 -->
-      <div class="ring ring-outer"></div>
-      <div class="ring ring-mid"></div>
-      <div class="ring ring-inner"></div>
-      <!-- 十字線 -->
-      <div class="crosshair"></div>
-      <!-- 角落標記 -->
-      <div class="corner corner-tl"></div>
-      <div class="corner corner-tr"></div>
-      <div class="corner corner-bl"></div>
-      <div class="corner corner-br"></div>
-      <!-- 脈衝圈 -->
-      <div class="pulse-ring"></div>
-      <!-- 中心圓 / 勾勾 -->
-      <div class="center-dot" :class="{ done: calibDone }"></div>
-      <div class="check-mark" :class="{ show: calibDone }">
-        <svg viewBox="0 0 36 36" fill="none">
-          <circle cx="18" cy="18" r="16" fill="#00e5a0"/>
-          <path d="M10 18 L16 24 L26 12" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
+        <!-- 黃色滑鼠圓點（校準中） -->
+        <div v-if="!calibDone" class="mouse-dot" :style="dotStyle"></div>
+
+        <!-- 打勾動畫（校準完成） -->
+        <div v-if="calibDone" class="check-anim">
+          <svg viewBox="0 0 80 80" fill="none">
+            <circle cx="40" cy="40" r="36" fill="rgba(0,229,160,0.15)"/>
+            <circle cx="40" cy="40" r="28" fill="#00e5a0"/>
+            <path class="check-path" d="M22 40 L34 52 L58 28" stroke="#fff" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+          </svg>
+        </div>
       </div>
     </div>
 
-    <!-- 狀態文字 -->
-    <div class="status-text" :class="calibDone ? 'done' : 'calibrating'">
-      {{ calibDone ? 'Calibration Complete!' : 'Calibrating... Please wait.' }}
+    <!-- 底部提示文字（圖片） -->
+    <div class="bottom-area">
+      <img v-if="!calibDone" src="../assets/images/7-hint@4x.png" alt="Calibrating" class="hint-img" />
+      <div v-else class="complete-text">Calibration Complete!</div>
     </div>
   </div>
 </template>
@@ -56,26 +38,34 @@ import { ref, reactive, onMounted, onUnmounted } from 'vue'
 
 const emit = defineEmits(['complete'])
 const calibDone = ref(false)
-const targetStyle = reactive({ transform: 'translate(-50%, -50%)' })
+const dotStyle = reactive({ left: '50%', top: '50%' })
 let timer = null
 
 function onMouseMove(e) {
   if (calibDone.value) return
-  // 準心跟隨滑鼠，但限制在中央區域
-  const cx = window.innerWidth / 2
-  const cy = window.innerHeight / 2
-  const dx = (e.clientX - cx) * 0.08
-  const dy = (e.clientY - cy) * 0.08
-  targetStyle.transform = `translate(calc(-50% + ${dx}px), calc(-50% + ${dy}px))`
+  const rect = document.querySelector('.circle-wrap')
+  if (!rect) return
+  const box = rect.getBoundingClientRect()
+  const cx = box.left + box.width / 2
+  const cy = box.top + box.height / 2
+  // 限制在圓環內移動（最大半徑 35%）
+  const dx = e.clientX - cx
+  const dy = e.clientY - cy
+  const maxR = box.width * 0.3
+  const dist = Math.sqrt(dx * dx + dy * dy)
+  const clampDist = Math.min(dist, maxR)
+  const angle = Math.atan2(dy, dx)
+  const finalX = Math.cos(angle) * clampDist
+  const finalY = Math.sin(angle) * clampDist
+  dotStyle.left = `calc(50% + ${finalX}px)`
+  dotStyle.top = `calc(50% + ${finalY}px)`
 }
 
 onMounted(() => {
   calibDone.value = false
   timer = setTimeout(() => {
     calibDone.value = true
-    targetStyle.transform = 'translate(-50%, -50%)'
-    // 完成後 1.5 秒自動跳下一頁
-    setTimeout(() => { emit('complete') }, 1500)
+    setTimeout(() => { emit('complete') }, 1800)
   }, 3000)
 })
 
@@ -87,223 +77,124 @@ onUnmounted(() => { if (timer) clearTimeout(timer) })
   position: fixed;
   inset: 0;
   z-index: 10;
-  font-family: 'Outfit', sans-serif;
-  color: #fff;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 0 5vh 0;
   cursor: none;
 }
 
-/* ─── 頂部標題列 ─── */
-.step-header {
-  position: absolute;
-  top: 0; left: 0; right: 0;
-  height: clamp(44px, 6vh, 64px);
-  background: linear-gradient(90deg, rgba(0,95,95,0.92), rgba(0,150,145,0.92), rgba(0,180,170,0.92), rgba(0,150,145,0.92), rgba(0,95,95,0.92));
+/* ─── 頂部 ─── */
+.top-area {
+  width: 100%;
   display: flex;
-  align-items: center;
   justify-content: center;
-  gap: clamp(8px, 1vw, 16px);
-  z-index: 20;
-  box-shadow: 0 2px 20px rgba(0,0,0,0.5);
-  border-bottom: 1px solid rgba(255,255,255,0.1);
   animation: fadeSlideDown 0.5s ease both;
 }
 
-.step-header-icon {
-  width: clamp(28px, 3vw, 40px);
-  height: clamp(28px, 3vw, 40px);
+.step-header-img {
+  width: clamp(400px, 55vw, 900px);
+  height: auto;
+  filter: drop-shadow(0 0.4vh 1.5vw rgba(0,0,0,0.4));
+}
+
+/* ─── 中央準心 ─── */
+.center-area {
+  flex: 1;
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
-.step-header-icon svg {
-  width: 100%;
-  height: 100%;
-}
-
-.step-header-title {
-  font-size: clamp(16px, 1.8vw, 28px);
-  font-weight: 700;
-  font-style: italic;
-  letter-spacing: 0.02em;
-}
-
-/* ─── 說明文字 ─── */
-.instruction-area {
-  position: absolute;
-  top: clamp(52px, 8vh, 80px);
-  left: 50%;
-  transform: translateX(-50%);
-  text-align: center;
-  z-index: 15;
-  animation: fadeIn 0.6s ease 0.3s both;
-}
-
-.instruction-main {
-  font-size: clamp(16px, 1.6vw, 26px);
-  font-weight: 600;
-  margin-bottom: clamp(4px, 0.8vh, 10px);
-  text-shadow: 0 2px 12px rgba(0,0,0,0.7);
-}
-
-.instruction-sub {
-  font-size: clamp(11px, 1.1vw, 16px);
-  color: rgba(0,229,160,0.8);
-  font-style: italic;
-  text-shadow: 0 1px 8px rgba(0,0,0,0.5);
-}
-
-/* ─── 校準準心 ─── */
-.calib-target {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  width: clamp(140px, 16vw, 240px);
-  height: clamp(140px, 16vw, 240px);
+.circle-wrap {
+  position: relative;
+  width: clamp(150px, 20vw, 300px);
+  height: clamp(150px, 20vw, 300px);
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 15;
-  transition: transform 0.15s ease-out;
 }
 
-/* 旋轉環 */
-.ring {
-  position: absolute;
-  border-radius: 50%;
-}
-
-.ring-outer {
-  width: 90%;
-  height: 90%;
-  border: 2px solid transparent;
-  border-top: 2px solid #00e5a0;
-  border-right: 2px solid rgba(0,229,160,0.4);
-  animation: spin 2s linear infinite;
-}
-
-.ring-mid {
-  width: 75%;
-  height: 75%;
-  border: 2px dashed rgba(0,229,160,0.3);
-  animation: spinReverse 3s linear infinite;
-}
-
-.ring-inner {
-  width: 60%;
-  height: 60%;
-  border: 1px solid rgba(0,229,160,0.2);
-}
-
-/* 十字線 */
-.crosshair {
-  position: absolute;
+.circle-img {
   width: 100%;
   height: 100%;
+  object-fit: contain;
+  filter: drop-shadow(0 0 2vw rgba(0,229,160,0.4));
 }
 
-.crosshair::before,
-.crosshair::after {
-  content: '';
-  position: absolute;
-  background: rgba(0,229,160,0.25);
+.circle-img.spinning {
+  animation: spin 4s linear infinite;
 }
 
-.crosshair::before { width: 1px; height: 100%; left: 50%; }
-.crosshair::after { width: 100%; height: 1px; top: 50%; }
-
-/* 角落標記 */
-.corner {
-  position: absolute;
-  width: 12%;
-  height: 12%;
-  border-color: #00e5a0;
-  border-style: solid;
-  border-width: 0;
+.circle-wrap.done .circle-img {
+  animation: none;
+  opacity: 0.5;
+  transition: opacity 0.6s ease;
 }
 
-.corner-tl { top: 5%; left: 5%; border-top-width: 2px; border-left-width: 2px; }
-.corner-tr { top: 5%; right: 5%; border-top-width: 2px; border-right-width: 2px; }
-.corner-bl { bottom: 5%; left: 5%; border-bottom-width: 2px; border-left-width: 2px; }
-.corner-br { bottom: 5%; right: 5%; border-bottom-width: 2px; border-right-width: 2px; }
-
-/* 脈衝圈 */
-.pulse-ring {
+/* 黃色滑鼠圓點 */
+.mouse-dot {
   position: absolute;
-  width: 90%;
-  height: 90%;
+  width: 22%;
+  height: 22%;
   border-radius: 50%;
-  border: 1px solid rgba(0,229,160,0.4);
-  animation: pulse 2s ease-out infinite;
-}
-
-/* 中心黃色圓 */
-.center-dot {
-  width: 25%;
-  height: 25%;
-  border-radius: 50%;
-  background: radial-gradient(circle at 35% 35%, #ffe066, #f5c842, #d4a017);
-  box-shadow: 0 0 30px rgba(245,200,66,0.6);
-  z-index: 2;
-  transition: all 0.6s ease;
-}
-
-.center-dot.done {
-  opacity: 0;
-  transform: scale(0.5);
-}
-
-/* 完成勾勾 */
-.check-mark {
-  display: none;
-  position: absolute;
+  background: radial-gradient(circle at 38% 35%, #ffe066, #f5c842, #d4a017);
+  box-shadow: 0 0 1.5vw rgba(245,200,66,0.7);
+  transform: translate(-50%, -50%);
+  transition: left 0.1s ease-out, top 0.1s ease-out;
   z-index: 3;
 }
 
-.check-mark.show {
-  display: block;
-  animation: popIn 0.4s ease;
-}
-
-.check-mark svg {
-  width: clamp(28px, 3vw, 44px);
-  height: clamp(28px, 3vw, 44px);
-}
-
-/* 完成態 */
-.calib-target.done .ring-outer { animation: none; border: 2px solid #00e5a0; }
-.calib-target.done .ring-mid { animation: none; border: 2px solid rgba(0,229,160,0.5); }
-.calib-target.done .pulse-ring { animation: none; opacity: 0; }
-
-/* ─── 狀態文字 ─── */
-.status-text {
+/* 打勾動畫 */
+.check-anim {
   position: absolute;
-  bottom: clamp(60px, 12vh, 120px);
-  left: 50%;
-  transform: translateX(-50%);
-  z-index: 15;
-  font-size: clamp(16px, 1.8vw, 28px);
+  width: 55%;
+  height: 55%;
+  animation: popIn 0.5s ease;
+  z-index: 4;
+}
+
+.check-anim svg {
+  width: 100%;
+  height: 100%;
+  filter: drop-shadow(0 0 1.5vw rgba(0,229,160,0.6));
+}
+
+.check-path {
+  stroke-dasharray: 60;
+  stroke-dashoffset: 60;
+  animation: drawCheck 0.5s ease 0.2s forwards;
+}
+
+/* ─── 底部 ─── */
+.bottom-area {
+  display: flex;
+  justify-content: center;
+  animation: fadeIn 0.6s ease 0.3s both;
+}
+
+.hint-img {
+  width: clamp(200px, 28vw, 450px);
+  height: auto;
+  animation: blink 2s ease-in-out infinite;
+}
+
+.complete-text {
+  font-family: 'Outfit', sans-serif;
+  font-size: clamp(18px, 2.2vw, 32px);
   font-weight: 700;
   font-style: italic;
-  text-shadow: 0 2px 16px rgba(0,0,0,0.6);
-  transition: all 0.4s ease;
-}
-
-.status-text.calibrating {
-  color: #00e5a0;
-  animation: blink 1.5s ease-in-out infinite;
-}
-
-.status-text.done {
   color: #33ff99;
+  text-shadow: 0 0 2vw rgba(0,229,160,0.5);
+  animation: popIn 0.4s ease;
 }
 
 /* ─── 動畫 ─── */
 @keyframes spin { to { transform: rotate(360deg); } }
-@keyframes spinReverse { to { transform: rotate(-360deg); } }
-@keyframes pulse { 0% { transform: scale(0.6); opacity: 0.8; } 100% { transform: scale(1.3); opacity: 0; } }
-@keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+@keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
 @keyframes popIn { from { transform: scale(0.5); opacity: 0; } to { transform: scale(1); opacity: 1; } }
-@keyframes fadeSlideDown { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes drawCheck { to { stroke-dashoffset: 0; } }
+@keyframes fadeSlideDown { from { opacity: 0; transform: translateY(-2vh); } to { opacity: 1; transform: translateY(0); } }
 @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 </style>
