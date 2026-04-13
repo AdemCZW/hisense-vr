@@ -1,5 +1,5 @@
 <template>
-  <div class="tutorial-screen">
+  <div class="tutorial-screen" @click="onPageClick">
     <!-- ════════ Page 1: 裝備佩戴 ════════ -->
     <transition name="slide" mode="out-in">
       <div v-if="currentStep === 0" key="equip" class="tutorial-content">
@@ -80,24 +80,19 @@ const emit = defineEmits(['complete'])
 const currentStep = ref(0)
 let timer = null
 
-const steps = [
-  { id: 'equipment' },
-  { id: 'assist' },
-]
-
-function autoNext() {
-  if (timer) clearTimeout(timer)
-  timer = setTimeout(() => {
-    if (currentStep.value < steps.length - 1) {
-      currentStep.value++
-      autoNext()
-    } else {
-      emit('complete')
-    }
-  }, 3000)
+function onPageClick() {
+  if (currentStep.value === 1) {
+    emit('complete')
+  }
 }
 
-onMounted(() => { autoNext() })
+onMounted(() => {
+  // 裝備頁 3 秒後自動跳到協助頁
+  timer = setTimeout(() => {
+    currentStep.value = 1
+  }, 3000)
+})
+
 onUnmounted(() => { if (timer) clearTimeout(timer) })
 </script>
 
