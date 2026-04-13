@@ -39,16 +39,19 @@ import { ref, reactive, onMounted, onUnmounted } from 'vue'
 const emit = defineEmits(['complete'])
 const calibDone = ref(false)
 const dotStyle = reactive({ left: '50%', top: '50%' })
-let timer = null
+
+// 對準計時：滑鼠停在中心區域內持續 1.5 秒才算校準成功
+let holdTimer = null
+const HOLD_DURATION = 1500  // 需要持續對準的毫秒數
+const CENTER_THRESHOLD = 0.12 // 中心區域佔圓環寬度的比例
 
 function onMouseMove(e) {
   if (calibDone.value) return
-  const rect = document.querySelector('.circle-wrap')
-  if (!rect) return
-  const box = rect.getBoundingClientRect()
+  const el = document.querySelector('.circle-wrap')
+  if (!el) return
+  const box = el.getBoundingClientRect()
   const cx = box.left + box.width / 2
   const cy = box.top + box.height / 2
-  // 限制在圓環內移動（最大半徑 35%）
   const dx = e.clientX - cx
   const dy = e.clientY - cy
   const maxR = box.width * 0.3
@@ -59,17 +62,33 @@ function onMouseMove(e) {
   const finalY = Math.sin(angle) * clampDist
   dotStyle.left = `calc(50% + ${finalX}px)`
   dotStyle.top = `calc(50% + ${finalY}px)`
+
+  // 判斷是否在中心區域內
+  const centerR = box.width * CENTER_THRESHOLD
+  if (dist < centerR) {
+    // 在中心，開始計時（如果還沒開始）
+    if (!holdTimer) {
+      holdTimer = setTimeout(() => {
+        calibDone.value = true
+        setTimeout(() => { emit('complete') }, 1800)
+      }, HOLD_DURATION)
+    }
+  } else {
+    // 離開中心，重置計時
+    if (holdTimer) {
+      clearTimeout(holdTimer)
+      holdTimer = null
+    }
+  }
 }
 
 onMounted(() => {
   calibDone.value = false
-  timer = setTimeout(() => {
-    calibDone.value = true
-    setTimeout(() => { emit('complete') }, 1800)
-  }, 3000)
 })
 
-onUnmounted(() => { if (timer) clearTimeout(timer) })
+onUnmounted(() => {
+  if (holdTimer) { clearTimeout(holdTimer); holdTimer = null }
+})
 </script>
 
 <style scoped>
