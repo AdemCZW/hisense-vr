@@ -215,8 +215,8 @@ function handleNext() {
 }
 
 .user-img {
-  height: clamp(250px, 55vh, 600px);
-  width: auto;
+  height: auto;
+  width: clamp(150px, 18vw, 320px);
   filter: drop-shadow(0 0.8vh 2.5vw rgba(0,0,0,0.5));
   position: relative;
   z-index: 2;
