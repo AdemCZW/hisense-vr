@@ -14,37 +14,32 @@
           </p>
         </div>
 
-        <!-- 裝備佈局 -->
+        <!-- 裝備佈局（absolute 定位，方便微調） -->
         <div class="equip-layout">
-          <!-- 左側裝備 -->
-          <div class="equip-left">
-            <div class="equip-item">
-              <img src="../assets/images/2-step1@4x.png" alt="Step1" class="equip-img equip-img-1" />
-            </div>
-            <div class="equip-item">
-              <img src="../assets/images/2-step2@4x.png" alt="Step2" class="equip-img equip-img-2" />
-            </div>
-          </div>
-
           <!-- 中央人物 -->
-          <div class="equip-center">
-            <img src="../assets/images/2-user@4x.png" alt="Player" class="user-img" />
-            <svg class="connect-lines" viewBox="0 0 400 500" preserveAspectRatio="none">
-              <line x1="60" y1="100" x2="160" y2="80" stroke="rgba(255,255,255,0.3)" stroke-width="1.5" stroke-dasharray="6,4"/>
-              <circle cx="160" cy="80" r="4" fill="#00e5a0"/>
-              <line x1="80" y1="360" x2="170" y2="320" stroke="rgba(255,255,255,0.3)" stroke-width="1.5" stroke-dasharray="6,4"/>
-              <circle cx="170" cy="320" r="4" fill="#00e5a0"/>
-              <line x1="340" y1="160" x2="240" y2="60" stroke="rgba(255,255,255,0.3)" stroke-width="1.5" stroke-dasharray="6,4"/>
-              <circle cx="240" cy="60" r="4" fill="#00e5a0"/>
-            </svg>
-          </div>
+          <img src="../assets/images/2-user@4x.png" alt="Player" class="user-img" />
 
-          <!-- 右側裝備 -->
-          <div class="equip-right">
-            <div class="equip-item">
-              <img src="../assets/images/2-step3@4x.png" alt="Step3" class="equip-img equip-img-3" />
-            </div>
-          </div>
+          <!-- Step1: 左上 — 調 top/left 微調位置 -->
+          <img src="../assets/images/2-step1@4x.png" alt="Step1" class="equip-abs equip-s1" />
+
+          <!-- Step2: 左下 — 調 top/left 微調位置 -->
+          <img src="../assets/images/2-step2@4x.png" alt="Step2" class="equip-abs equip-s2" />
+
+          <!-- Step3: 右側 — 調 top/left 微調位置 -->
+          <img src="../assets/images/2-step3@4x.png" alt="Step3" class="equip-abs equip-s3" />
+
+          <!-- 連接虛線 -->
+          <svg class="connect-lines" viewBox="0 0 1000 600" preserveAspectRatio="none">
+            <!-- Step1 → 頭部 -->
+            <line x1="280" y1="140" x2="420" y2="100" stroke="rgba(255,255,255,0.35)" stroke-width="1.5" stroke-dasharray="6,4"/>
+            <circle cx="420" cy="100" r="5" fill="#00e5a0"/>
+            <!-- Step2 → 小腿 -->
+            <line x1="300" y1="440" x2="440" y2="400" stroke="rgba(255,255,255,0.35)" stroke-width="1.5" stroke-dasharray="6,4"/>
+            <circle cx="440" cy="400" r="5" fill="#00e5a0"/>
+            <!-- Step3 → 頭盔 -->
+            <line x1="700" y1="180" x2="560" y2="80" stroke="rgba(255,255,255,0.35)" stroke-width="1.5" stroke-dasharray="6,4"/>
+            <circle cx="560" cy="80" r="5" fill="#00e5a0"/>
+          </svg>
         </div>
       </div>
     </transition>
@@ -186,44 +181,56 @@ function handleNext() {
   margin: 0;
 }
 
-/* ─── 裝備佈局（三欄） ─── */
+/* ─── 裝備佈局（absolute 定位） ─── */
 .equip-layout {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 90%;
-  max-width: 75vw;
-  flex: 1;
   position: relative;
+  width: 80%;
+  max-width: 70vw;
+  flex: 1;
   animation: fadeIn 0.8s ease 0.2s both;
 }
 
-.equip-left {
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  align-items: flex-end;
-  flex: 0 0 18vw;
-  height: 80%;
-  margin-right: -2vw;
-}
-
-.equip-center {
-  position: relative;
-  flex: 0 0 auto;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
+/* 中央人物 */
 .user-img {
-  height: auto;
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
   width: clamp(150px, 18vw, 320px);
+  height: auto;
   filter: drop-shadow(0 0.8vh 2.5vw rgba(0,0,0,0.5));
-  position: relative;
   z-index: 2;
 }
 
+/* 裝備圖共用 */
+.equip-abs {
+  position: absolute;
+  z-index: 3;
+  filter: drop-shadow(0 0.4vh 1.2vw rgba(0,0,0,0.4));
+}
+
+/* ── Step1: 左上 ── 調這裡微調位置 */
+.equip-s1 {
+  width: clamp(140px, 15vw, 260px);
+  top: 5%;
+  left: 5%;
+}
+
+/* ── Step2: 左下 ── 調這裡微調位置 */
+.equip-s2 {
+  width: clamp(130px, 14vw, 250px);
+  top: 58%;
+  left: 3%;
+}
+
+/* ── Step3: 右側 ── 調這裡微調位置 */
+.equip-s3 {
+  width: clamp(140px, 15vw, 260px);
+  top: 15%;
+  right: 3%;
+}
+
+/* 連接虛線 */
 .connect-lines {
   position: absolute;
   inset: 0;
@@ -231,38 +238,6 @@ function handleNext() {
   height: 100%;
   z-index: 1;
   pointer-events: none;
-}
-
-.equip-right {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  flex: 0 0 18vw;
-  margin-left: -2vw;
-  margin-top: -5vh;
-}
-
-.equip-item {
-  position: relative;
-}
-
-.equip-img {
-  filter: drop-shadow(0 0.4vh 1.2vw rgba(0,0,0,0.4));
-}
-
-.equip-img-1 {
-  width: clamp(140px, 16vw, 280px);
-  height: auto;
-}
-
-.equip-img-2 {
-  width: clamp(130px, 15vw, 270px);
-  height: auto;
-}
-
-.equip-img-3 {
-  width: clamp(140px, 16vw, 280px);
-  height: auto;
 }
 
 /* ─── Page 2: 對話卡片 ─── */
