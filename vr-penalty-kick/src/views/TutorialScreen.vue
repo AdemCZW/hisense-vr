@@ -16,53 +16,63 @@
       </div>
     </div>
 
-    <!-- cut2: 裝備佩戴提示 -->
+    <!-- ════════ Page 1: 裝備佩戴 ════════ -->
     <transition name="slide" mode="out-in">
       <div v-if="currentStep === 0" key="equip" class="tutorial-content">
-        <div class="dialog-card">
-          <div class="alert-banner">
-            <span class="alert-icon">!</span>
-            <p class="alert-text">
-              Before the game begins, please follow the staff's<br>
-              instructions to put on the equipment.
-            </p>
+        <!-- 頂部提示文字 -->
+        <div class="hint-bar">
+          <img src="../assets/images/2-hint@4x.png" alt="" class="hint-icon" />
+          <p class="hint-text">
+            Before the game begins, please follow the staff's<br>
+            instructions to put on the equipment.
+          </p>
+        </div>
+
+        <!-- 裝備佈局 -->
+        <div class="equip-layout">
+          <!-- 左側裝備 -->
+          <div class="equip-left">
+            <div class="equip-item equip-step1">
+              <img src="../assets/images/2-step1@4x.png" alt="Step1" class="equip-img equip-img-1" />
+            </div>
+            <div class="equip-item equip-step2">
+              <img src="../assets/images/2-step2@4x.png" alt="Step2" class="equip-img equip-img-2" />
+            </div>
           </div>
 
-          <div class="equipment-row">
-            <div class="equip-card" v-for="eq in equipment" :key="eq.step">
-              <span class="step-tag">Step{{ eq.step }}.</span>
-              <span class="equip-name">{{ eq.name }}</span>
-              <div class="equip-image-box">
-                <svg v-if="eq.step === 1" viewBox="0 0 120 80" class="equip-svg">
-                  <rect x="15" y="15" width="90" height="50" rx="25" fill="none" stroke="#aaa" stroke-width="2"/>
-                  <circle cx="40" cy="40" r="14" fill="none" stroke="#aaa" stroke-width="2"/>
-                  <circle cx="80" cy="40" r="14" fill="none" stroke="#aaa" stroke-width="2"/>
-                </svg>
-                <svg v-else-if="eq.step === 2" viewBox="0 0 120 80" class="equip-svg">
-                  <rect x="25" y="10" width="70" height="55" rx="12" fill="#1a1a2e" stroke="#555" stroke-width="2"/>
-                  <rect x="35" y="18" width="50" height="30" rx="6" fill="#0d0d1a" stroke="#444" stroke-width="1"/>
-                  <rect x="42" y="55" width="36" height="8" rx="4" fill="#333"/>
-                </svg>
-                <svg v-else viewBox="0 0 120 80" class="equip-svg">
-                  <rect x="10" y="15" width="100" height="45" rx="10" fill="#e8e8e8" stroke="#ccc" stroke-width="1"/>
-                  <rect x="15" y="20" width="40" height="30" rx="6" fill="#222"/>
-                  <rect x="65" y="20" width="40" height="30" rx="6" fill="#222"/>
-                  <rect x="0" y="30" width="14" height="15" rx="4" fill="#ddd"/>
-                  <line x1="40" y1="60" x2="80" y2="60" stroke="#00b8a0" stroke-width="3" stroke-linecap="round"/>
-                </svg>
-              </div>
+          <!-- 中央人物 -->
+          <div class="equip-center">
+            <img src="../assets/images/2-user@4x.png" alt="Player" class="user-img" />
+            <!-- 連接虛線 SVG -->
+            <svg class="connect-lines" viewBox="0 0 400 500" preserveAspectRatio="none">
+              <!-- Step1 → 頭部 -->
+              <line x1="60" y1="100" x2="160" y2="80" stroke="rgba(255,255,255,0.3)" stroke-width="1.5" stroke-dasharray="6,4"/>
+              <circle cx="160" cy="80" r="4" fill="#00e5a0"/>
+              <!-- Step2 → 小腿 -->
+              <line x1="80" y1="360" x2="170" y2="320" stroke="rgba(255,255,255,0.3)" stroke-width="1.5" stroke-dasharray="6,4"/>
+              <circle cx="170" cy="320" r="4" fill="#00e5a0"/>
+              <!-- Step3 → 頭頂 -->
+              <line x1="340" y1="160" x2="240" y2="60" stroke="rgba(255,255,255,0.3)" stroke-width="1.5" stroke-dasharray="6,4"/>
+              <circle cx="240" cy="60" r="4" fill="#00e5a0"/>
+            </svg>
+          </div>
+
+          <!-- 右側裝備 -->
+          <div class="equip-right">
+            <div class="equip-item equip-step3">
+              <img src="../assets/images/2-step3@4x.png" alt="Step3" class="equip-img equip-img-3" />
             </div>
           </div>
         </div>
       </div>
     </transition>
 
-    <!-- cut3: 體驗協助提醒 -->
+    <!-- ════════ Page 2: 體驗協助 ════════ -->
     <transition name="slide" mode="out-in">
       <div v-if="currentStep === 1" key="assist" class="tutorial-content">
         <div class="dialog-card">
           <div class="alert-banner">
-            <span class="alert-icon">!</span>
+            <img src="../assets/images/2-hint@4x.png" alt="" class="hint-icon-sm" />
             <p class="alert-text">
               If you feel uncomfortable or have any questions,<br>
               please raise your hand and inform the staff.
@@ -112,12 +122,6 @@ const currentStep = ref(0)
 const steps = [
   { id: 'equipment' },
   { id: 'assist' },
-]
-
-const equipment = [
-  { step: 1, name: 'Disposable VR Face Cover' },
-  { step: 2, name: 'Leg Tracker' },
-  { step: 3, name: 'VR Headset' },
 ]
 
 function handleNext() {
@@ -192,46 +196,144 @@ function handleNext() {
   transition: width 0.4s ease;
 }
 
-/* ─── 對話卡片 ─── */
+/* ─── 教學內容區 ─── */
 .tutorial-content {
   position: absolute;
-  inset: 90px 0 90px 0;
+  inset: 80px 0 80px 0;
   z-index: 10;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+}
+
+/* ─── 頂部提示列 ─── */
+.hint-bar {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-top: 10px;
+  margin-bottom: 10px;
+  animation: fadeSlideDown 0.6s ease both;
+}
+
+.hint-icon {
+  height: 36px;
+  width: auto;
+}
+
+.hint-text {
+  font-size: 18px;
+  font-weight: 600;
+  color: #fff;
+  line-height: 1.5;
+  margin: 0;
+  text-shadow: 0 2px 12px rgba(0,0,0,0.6);
+}
+
+/* ─── 裝備佈局（三欄） ─── */
+.equip-layout {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0;
+  width: 100%;
+  max-width: 900px;
+  flex: 1;
+  position: relative;
+  animation: fadeIn 0.8s ease 0.2s both;
+}
+
+.equip-left {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  align-items: flex-end;
+  flex: 0 0 220px;
+}
+
+.equip-center {
+  position: relative;
+  flex: 0 0 auto;
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
+.user-img {
+  height: clamp(300px, 50vh, 440px);
+  width: auto;
+  filter: drop-shadow(0 8px 30px rgba(0,0,0,0.5));
+  position: relative;
+  z-index: 2;
+}
+
+.connect-lines {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1;
+  pointer-events: none;
+}
+
+.equip-right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  flex: 0 0 220px;
+  padding-top: 20px;
+}
+
+.equip-item {
+  position: relative;
+}
+
+.equip-img {
+  filter: drop-shadow(0 4px 16px rgba(0,0,0,0.4));
+}
+
+.equip-img-1 {
+  width: 200px;
+  height: auto;
+}
+
+.equip-img-2 {
+  width: 190px;
+  height: auto;
+}
+
+.equip-img-3 {
+  width: 200px;
+  height: auto;
+}
+
+/* ─── Page 2: 對話卡片 ─── */
 .dialog-card {
   background: rgba(0, 10, 8, 0.7);
   backdrop-filter: blur(20px);
   border: 1px solid rgba(0, 229, 160, 0.1);
   border-radius: 28px;
   padding: 36px 44px;
-  max-width: 700px;
+  max-width: 600px;
   width: 90%;
   display: flex;
   flex-direction: column;
   align-items: center;
   pointer-events: auto;
   box-shadow: 0 8px 40px rgba(0,0,0,0.4);
+  margin-top: 40px;
 }
 
-/* ─── 警告 ─── */
 .alert-banner {
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   gap: 12px;
-  margin-bottom: 28px;
+  margin-bottom: 24px;
   width: 100%;
 }
 
-.alert-icon {
-  display: flex; align-items: center; justify-content: center;
-  width: 28px; height: 28px; border-radius: 50%;
-  background: #f5a623; color: #000;
-  font-size: 16px; font-weight: 900; flex-shrink: 0;
-}
+.hint-icon-sm { height: 28px; width: auto; }
 
 .alert-text {
   font-size: 16px; font-weight: 500;
@@ -239,41 +341,6 @@ function handleNext() {
   line-height: 1.6; margin: 0;
 }
 
-/* ─── 裝備列 ─── */
-.equipment-row {
-  display: flex;
-  gap: 20px;
-  justify-content: center;
-  flex-wrap: wrap;
-}
-
-.equip-card { text-align: center; }
-
-.step-tag {
-  font-size: 14px; font-weight: 700;
-  color: #f5c842; font-style: italic;
-  display: block;
-}
-
-.equip-name {
-  font-size: 12px; font-weight: 600;
-  color: #f5c842; font-style: italic;
-  display: block; margin-bottom: 6px;
-}
-
-.equip-image-box {
-  width: 150px; height: 90px;
-  background: rgba(255,255,255,0.05);
-  border: 1px solid rgba(255,255,255,0.1);
-  border-radius: 14px;
-  display: flex; align-items: center; justify-content: center;
-  transition: border-color 0.3s ease;
-}
-
-.equip-image-box:hover { border-color: rgba(0,229,160,0.3); }
-.equip-svg { width: 90px; height: 60px; }
-
-/* ─── 協助人物 ─── */
 .assist-figure {
   position: relative;
   margin: 8px auto 16px;
@@ -332,10 +399,16 @@ function handleNext() {
 .nav-prev:hover { background: rgba(255,255,255,0.2); color: #fff; }
 
 .nav-next {
-  background: linear-gradient(135deg, #2a7a6a, #1a6a5a);
-  color: #fff;
+  font-size: 18px;
+  font-weight: 800;
+  font-style: italic;
+  color: #1a6a5a;
+  background: #ffffff;
+  padding: 14px 50px;
+  border-radius: 50px;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.25);
 }
-.nav-next:hover { transform: scale(1.04); box-shadow: 0 4px 20px rgba(0,229,160,0.2); }
+.nav-next:hover { transform: scale(1.04); box-shadow: 0 6px 24px rgba(0,0,0,0.3); }
 .nav-next:active { transform: scale(0.97); }
 
 /* ─── 過渡 ─── */
@@ -343,8 +416,6 @@ function handleNext() {
 .slide-enter-from { opacity: 0; transform: translateX(30px); }
 .slide-leave-to { opacity: 0; transform: translateX(-30px); }
 
-@keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
-}
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+@keyframes fadeSlideDown { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
 </style>
