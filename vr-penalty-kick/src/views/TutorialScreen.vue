@@ -181,24 +181,24 @@ function handleNext() {
   margin: 0;
 }
 
-/* ─── 裝備佈局（absolute 定位） ─── */
+/* ─── 裝備佈局（固定比例容器） ─── */
 .equip-layout {
   position: relative;
-  width: 80%;
-  max-width: 70vw;
-  flex: 1;
+  width: min(85vw, 140vh);  /* 寬度跟隨視窗，但不會超過高度比例 */
+  aspect-ratio: 16 / 9;     /* 固定寬高比，所有子元素等比縮放 */
+  margin: 0 auto;
   animation: fadeIn 0.8s ease 0.2s both;
 }
 
-/* 中央人物 */
+/* 中央人物 — 所有尺寸用 % 相對容器 */
 .user-img {
   position: absolute;
   left: 50%;
   top: 50%;
   transform: translate(-50%, -50%);
-  width: clamp(150px, 18vw, 320px);
-  height: auto;
-  filter: drop-shadow(0 0.8vh 2.5vw rgba(0,0,0,0.5));
+  height: 90%;
+  width: auto;
+  filter: drop-shadow(0 1% 3% rgba(0,0,0,0.5));
   z-index: 2;
 }
 
@@ -206,26 +206,26 @@ function handleNext() {
 .equip-abs {
   position: absolute;
   z-index: 3;
-  filter: drop-shadow(0 0.4vh 1.2vw rgba(0,0,0,0.4));
+  filter: drop-shadow(0 0.5% 1.5% rgba(0,0,0,0.4));
 }
 
-/* ── Step1: 左上 ── 調這裡微調位置 */
+/* ── Step1: 左上 ── */
 .equip-s1 {
-  width: clamp(140px, 15vw, 260px);
+  width: 22%;
   top: 5%;
   left: 5%;
 }
 
-/* ── Step2: 左下 ── 調這裡微調位置 */
+/* ── Step2: 左下 ── */
 .equip-s2 {
-  width: clamp(130px, 14vw, 250px);
+  width: 21%;
   top: 58%;
   left: 3%;
 }
 
-/* ── Step3: 右側 ── 調這裡微調位置 */
+/* ── Step3: 右側 ── */
 .equip-s3 {
-  width: clamp(140px, 15vw, 260px);
+  width: 22%;
   top: 15%;
   right: 3%;
 }
