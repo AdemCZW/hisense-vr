@@ -28,18 +28,6 @@
           <!-- Step3: 右側 — 調 top/left 微調位置 -->
           <img src="../assets/images/2-step3@4x.png" alt="Step3" class="equip-abs equip-s3" />
 
-          <!-- 連接虛線 -->
-          <svg class="connect-lines" viewBox="0 0 1000 600" preserveAspectRatio="none">
-            <!-- Step1 → 頭部 -->
-            <line x1="280" y1="140" x2="420" y2="100" stroke="rgba(255,255,255,0.35)" stroke-width="1.5" stroke-dasharray="6,4"/>
-            <circle cx="420" cy="100" r="5" fill="#00e5a0"/>
-            <!-- Step2 → 小腿 -->
-            <line x1="300" y1="440" x2="440" y2="400" stroke="rgba(255,255,255,0.35)" stroke-width="1.5" stroke-dasharray="6,4"/>
-            <circle cx="440" cy="400" r="5" fill="#00e5a0"/>
-            <!-- Step3 → 頭盔 -->
-            <line x1="700" y1="180" x2="560" y2="80" stroke="rgba(255,255,255,0.35)" stroke-width="1.5" stroke-dasharray="6,4"/>
-            <circle cx="560" cy="80" r="5" fill="#00e5a0"/>
-          </svg>
         </div>
       </div>
     </transition>
@@ -230,15 +218,6 @@ function handleNext() {
   right: 3%;
 }
 
-/* 連接虛線 */
-.connect-lines {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  z-index: 1;
-  pointer-events: none;
-}
 
 /* ─── Page 2: 對話卡片 ─── */
 .dialog-card {
