@@ -12,9 +12,7 @@
 
     <!-- START 按鈕 -->
     <div class="start-btn-wrapper">
-      <button class="start-btn" @click="$emit('start')">
-        <span class="btn-text">START</span>
-      </button>
+      <button class="start-btn" @click="$emit('start')">START</button>
     </div>
 
     <!-- 粒子動畫 -->
@@ -95,42 +93,26 @@ function particleStyle() {
 
 .start-btn {
   font-family: 'Outfit', sans-serif;
-  font-size: 24px;
+  font-size: 28px;
   font-weight: 800;
-  letter-spacing: 4px;
-  color: #ffffff;
-  background: linear-gradient(135deg, #2a7a6a, #1a6a5a);
+  font-style: italic;
+  letter-spacing: 3px;
+  color: #1a6a5a;
+  background: #ffffff;
   border: none;
-  border-radius: 50px;
-  padding: 18px 80px;
+  border-radius: 60px;
+  padding: 20px 90px;
   cursor: pointer;
-  box-shadow: 0 4px 24px rgba(0,0,0,0.3), 0 0 40px rgba(0,229,160,0.1);
+  box-shadow: 0 4px 24px rgba(0,0,0,0.25);
   transition: all 0.25s ease;
-  position: relative;
-  overflow: hidden;
-}
-
-.start-btn::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  border-radius: 50px;
-  box-shadow: 0 0 20px rgba(0,229,160,0.3), inset 0 0 20px rgba(0,229,160,0.05);
-  animation: btnPulse 2.5s ease-in-out infinite;
 }
 
 .start-btn:hover {
-  transform: scale(1.06);
-  box-shadow: 0 6px 32px rgba(0,0,0,0.4), 0 0 50px rgba(0,229,160,0.2);
+  transform: scale(1.05);
+  box-shadow: 0 6px 32px rgba(0,0,0,0.35);
 }
 
 .start-btn:active { transform: scale(0.97); }
-.btn-text { position: relative; z-index: 1; }
-
-@keyframes btnPulse {
-  0%, 100% { opacity: 0.4; }
-  50% { opacity: 1; }
-}
 
 /* ─── 粒子 ─── */
 .particles {
