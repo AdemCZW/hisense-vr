@@ -39,7 +39,7 @@ export class PhysicsWorld {
       shape: new CANNON.Plane(),
       material: this.groundMaterial,
     })
-    this.groundBody.quaternion.setFromEulerXYZ(-Math.PI / 2, 0, 0)
+    this.groundBody.quaternion.setFromAxisAngle(new CANNON.Vec3(1, 0, 0), -Math.PI / 2)
     this.world.addBody(this.groundBody)
 
     // 球門碰撞體
@@ -78,7 +78,7 @@ export class PhysicsWorld {
       material: this.postMaterial,
     })
     crossbar.position.set(0, GOAL_HEIGHT, GOAL_Z)
-    crossbar.quaternion.setFromEulerXYZ(0, 0, Math.PI / 2)
+    crossbar.quaternion.setFromAxisAngle(new CANNON.Vec3(0, 0, 1), Math.PI / 2)
     this.world.addBody(crossbar)
 
     // Back net (invisible wall)
@@ -116,33 +116,46 @@ export class PhysicsWorld {
     const by = this.ballBody.position.y
     const bz = this.ballBody.position.z
 
+    const tY = targetY || 1.2
+    const goalDist = Math.abs((GOAL_Z + 0.5) - bz) // ~11m
+
+    // 計算拋物線（大弧度，球先飛高再落入球門）
+    const horizontalSpeed = speed * 0.55
+    const flightTime = goalDist / horizontalSpeed
+
+    // 垂直速度：大弧線
+    const gravity = 9.82
+    const arcExtra = 3.0 + Math.random() * 2.0
+    const vy = ((tY - by) + 0.5 * gravity * flightTime * flightTime + arcExtra) / flightTime
+
+    // 水平方向
     const dx = targetX - bx
-    const dy = (targetY || 1.2) - by
     const dz = (GOAL_Z + 0.5) - bz
-    const dist = Math.sqrt(dx * dx + dy * dy + dz * dz)
+    const hDist = Math.sqrt(dx * dx + dz * dz)
+    const vx = (dx / hDist) * horizontalSpeed
+    const vz = (dz / hDist) * horizontalSpeed
 
-    // 方向向量
-    const dir = new CANNON.Vec3(dx, dy, dz)
-    dir.normalize()
-
-    // 施加衝量 (mass * velocity)
-    const impulse = dir.scale(speed * this.ballBody.mass)
+    // 施加衝量
+    const impulse = new CANNON.Vec3(
+      vx * this.ballBody.mass,
+      vy * this.ballBody.mass,
+      vz * this.ballBody.mass
+    )
     this.ballBody.applyImpulse(impulse)
 
-    // 加上旋轉
+    // 旋轉（側旋 + 上旋）
     this.ballBody.angularVelocity.set(
-      (Math.random() - 0.5) * 10,
-      (Math.random() - 0.5) * 5,
-      -15
+      -8 + Math.random() * 4,             // 上旋
+      (targetX > 0 ? -1 : 1) * (3 + Math.random() * 4),  // 側旋（跟方向有關）
+      -10
     )
 
-    // 喚醒剛體
     this.ballBody.wakeUp()
   }
 
   /** 重置足球位置 */
   resetBall() {
-    this.ballBody.position.set(0, 0.22, -9)
+    this.ballBody.position.set(0, 0.22, -14)
     this.ballBody.velocity.setZero()
     this.ballBody.angularVelocity.setZero()
     this.ballBody.quaternion.set(0, 0, 0, 1)

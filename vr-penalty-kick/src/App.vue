@@ -5,6 +5,20 @@
     <!-- 漸層濾鏡 — 蓋在 3D 場景上方 -->
     <div class="gradient-filter" :class="{ hidden: store.screen !== 'start' }"></div>
 
+    <!-- DEV 導航列 — 快速跳頁 -->
+    <div v-if="isDev" class="dev-nav">
+      <button
+        v-for="s in screens" :key="s.id"
+        class="dev-nav-btn"
+        :class="{ active: store.screen === s.id }"
+        @click="devGo(s.id)"
+      >{{ s.label }}</button>
+      <span class="dev-nav-arrows">
+        <button class="dev-nav-arrow" @click="devPrev" title="上一頁">&#9664;</button>
+        <button class="dev-nav-arrow" @click="devNext" title="下一頁">&#9654;</button>
+      </span>
+    </div>
+
     <!-- UI 覆蓋層 — 交叉淡入淡出（不加 mode，新舊同時存在短暫重疊） -->
     <Transition name="fade">
       <StartScreen
@@ -25,6 +39,16 @@
       <CalibrationKick
         v-else-if="store.screen === 'calibKick'"
         key="calibKick"
+        @complete="store.setScreen('warmUp')"
+      />
+      <WarmUpView
+        v-else-if="store.screen === 'warmUp'"
+        key="warmUp"
+        @complete="store.setScreen('warmUpDodge')"
+      />
+      <WarmUpDodge
+        v-else-if="store.screen === 'warmUpDodge'"
+        key="warmUpDodge"
         @complete="store.startGame()"
       />
       <GameView
@@ -45,20 +69,48 @@ import * as THREE from 'three'
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js'
 import { useGameStore } from './stores/gameStore.js'
 import { Stadium } from './game/scene/Stadium.js'
+import { XRManager } from './game/xr/XRManager.js'
 
 import StartScreen from './views/StartScreen.vue'
 import TutorialScreen from './views/TutorialScreen.vue'
 import CalibrationView from './views/CalibrationView.vue'
 import CalibrationKick from './views/CalibrationKick.vue'
+import WarmUpView from './views/WarmUpView.vue'
+import WarmUpDodge from './views/WarmUpDodge.vue'
 import GameView from './views/GameView.vue'
 import ResultScreen from './views/ResultScreen.vue'
 
 const store = useGameStore()
 const sceneContainer = ref(null)
 
+// ─── DEV 導航 ───
+const isDev = import.meta.env.DEV
+const screens = [
+  { id: 'start', label: 'Start' },
+  { id: 'tutorial', label: 'Tutorial' },
+  { id: 'calibView', label: 'Calib-Aim' },
+  { id: 'calibKick', label: 'Calib-Kick' },
+  { id: 'warmUp', label: 'WarmUp' },
+  { id: 'warmUpDodge', label: 'WarmUp2' },
+  { id: 'game', label: 'Game' },
+  { id: 'result', label: 'Result' },
+]
+function devGo(id) {
+  if (id === 'game') { store.startGame(); return }
+  store.screen = id
+}
+function devPrev() {
+  const idx = screens.findIndex(s => s.id === store.screen)
+  if (idx > 0) devGo(screens[idx - 1].id)
+}
+function devNext() {
+  const idx = screens.findIndex(s => s.id === store.screen)
+  if (idx < screens.length - 1) devGo(screens[idx + 1].id)
+}
+
 // ─── 共享 3D 場景狀態 ───
 let scene, camera, renderer, controls, clock
-let animFrameId = null
+let xrManager = null
 const updateCallbacks = []
 
 // 提供給子元件
@@ -67,6 +119,7 @@ const sceneApi = {
   getCamera: () => camera,
   getRenderer: () => renderer,
   getControls: () => controls,
+  getXRManager: () => xrManager,
   onUpdate(fn) { updateCallbacks.push(fn) },
   offUpdate(fn) {
     const idx = updateCallbacks.indexOf(fn)
@@ -158,11 +211,58 @@ onMounted(() => {
   // Clock
   clock = new THREE.Clock()
 
+  // WebXR
+  try {
+    xrManager = new XRManager(renderer)
+    xrManager.onSessionStart(() => {
+      console.log('[XR] Session started')
+      controls.enabled = false
+      controls.autoRotate = false
+      // VR 攝影機定位到罰球點，面向球門
+      camera.position.set(0, 0, -8)
+      camera.rotation.set(0, 0, 0)
+      camera.lookAt(0, 1.2, -20)
+      // 隱藏展示球
+      const pb = scene.getObjectByName('previewBall')
+      if (pb) pb.visible = false
+    })
+    xrManager.onSessionEnd(() => {
+      console.log('[XR] Session ended')
+      controls.enabled = true
+      controls.autoRotate = true
+      camera.position.set(0, 1.6, -6)
+      controls.target.set(0, 1.0, -18)
+      controls.update()
+      const pb = scene.getObjectByName('previewBall')
+      if (pb) pb.visible = true
+    })
+    // 加入 VR 按鈕（Three.js VRButton 自動處理支援檢測）
+    const vrBtn = xrManager.createVRButton()
+    document.body.appendChild(vrBtn)
+    // 將控制器加入場景
+    xrManager.addToScene(scene)
+  } catch (e) {
+    console.error('[App] XRManager init failed:', e)
+    xrManager = null
+  }
+
+  // 如果重整後直接進入 game 畫面，立即設定攝影機
+  if (store.screen === 'game') {
+    controls.enabled = false
+    controls.autoRotate = false
+    camera.position.set(0, 2.2, -8.5)
+    camera.rotation.set(0, 0, 0)
+    camera.rotation.order = 'YXZ'
+    camera.lookAt(0, 1.2, -20)
+    const pb = scene.getObjectByName('previewBall')
+    if (pb) pb.visible = false
+  }
+
   // Resize
   window.addEventListener('resize', onResize)
 
-  // 啟動渲染迴圈
-  animate()
+  // 啟動渲染迴圈（用 setAnimationLoop，WebXR 必要）
+  renderer.setAnimationLoop(animate)
 })
 
 function createSpotLight(x, z) {
@@ -189,7 +289,6 @@ function onResize() {
 }
 
 function animate() {
-  animFrameId = requestAnimationFrame(animate)
   if (!renderer || !scene || !camera) return
 
   const delta = Math.min(clock.getDelta(), 0.05)
@@ -200,8 +299,26 @@ function animate() {
     cb(delta, elapsed)
   }
 
-  // 非遊戲模式：OrbitControls 自動旋轉
-  if (store.screen !== 'game' && controls) {
+  // WebXR 控制器位置同步到 store
+  if (xrManager?.isInVR) {
+    store.isXR = true
+    const positions = xrManager.updateControllers()
+    if (positions) {
+      const w = window.innerWidth
+      const h = window.innerHeight
+      const projL = positions.left.clone().project(camera)
+      const projR = positions.right.clone().project(camera)
+      store.updateXRFeet(
+        { x: (projL.x * 0.5 + 0.5) * w, y: (-projL.y * 0.5 + 0.5) * h },
+        { x: (projR.x * 0.5 + 0.5) * w, y: (-projR.y * 0.5 + 0.5) * h }
+      )
+    }
+  } else {
+    store.isXR = false
+  }
+
+  // 非遊戲模式且非 VR：OrbitControls 自動旋轉
+  if (store.screen !== 'game' && controls && !xrManager?.isInVR) {
     controls.update()
   }
 
@@ -217,6 +334,11 @@ watch(() => store.screen, (newScreen, oldScreen) => {
   if (newScreen === 'game') {
     controls.enabled = false
     controls.autoRotate = false
+    // 重設攝影機到罰球點第一人稱視角
+    camera.position.set(0, 2.2, -8.5)
+    camera.rotation.set(0, 0, 0)
+    camera.rotation.order = 'YXZ'
+    camera.lookAt(0, 1.2, -20)
     if (previewBall) previewBall.visible = false
   } else if (oldScreen === 'game') {
     // 只有從遊戲離開時才重設攝影機
@@ -231,12 +353,12 @@ watch(() => store.screen, (newScreen, oldScreen) => {
 })
 
 onUnmounted(() => {
-  if (animFrameId) cancelAnimationFrame(animFrameId)
-  window.removeEventListener('resize', onResize)
   if (renderer) {
+    renderer.setAnimationLoop(null)
     renderer.dispose()
     renderer.domElement.remove()
   }
+  window.removeEventListener('resize', onResize)
   if (controls) controls.dispose()
 })
 </script>
@@ -270,12 +392,14 @@ html, body {
   position: fixed;
   inset: 0;
   z-index: 0;
+  pointer-events: none;
 }
 
 .scene-bg canvas {
   display: block;
   width: 100%;
   height: 100%;
+  pointer-events: none;
 }
 
 /* 漸層濾鏡 — 蓋在 3D 場景上面 */
@@ -315,5 +439,75 @@ html, body {
 .fade-enter-from,
 .fade-leave-to {
   opacity: 0;
+}
+
+/* ─── DEV 導航列 ─── */
+.dev-nav {
+  position: fixed;
+  bottom: 12px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 10px;
+  background: rgba(0, 0, 0, 0.75);
+  backdrop-filter: blur(8px);
+  border-radius: 30px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  pointer-events: auto;
+}
+
+.dev-nav-btn {
+  font-family: 'Outfit', sans-serif;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 5px 10px;
+  border: none;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.08);
+  color: rgba(255, 255, 255, 0.5);
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+
+.dev-nav-btn:hover {
+  background: rgba(255, 255, 255, 0.15);
+  color: #fff;
+}
+
+.dev-nav-btn.active {
+  background: #00e5a0;
+  color: #0a0a0a;
+}
+
+.dev-nav-arrows {
+  display: flex;
+  gap: 2px;
+  margin-left: 6px;
+  border-left: 1px solid rgba(255, 255, 255, 0.15);
+  padding-left: 8px;
+}
+
+.dev-nav-arrow {
+  font-size: 14px;
+  width: 28px;
+  height: 28px;
+  border: none;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.1);
+  color: rgba(255, 255, 255, 0.7);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+}
+
+.dev-nav-arrow:hover {
+  background: rgba(0, 229, 160, 0.3);
+  color: #fff;
 }
 </style>

@@ -1,103 +1,139 @@
 <template>
   <div class="calib-screen">
-    <!-- 頂部標題 -->
-    <div class="step-header">
-      <div class="step-header-icon">
-        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="#00e5a0" stroke-width="2">
-          <path d="M12 22c-4-3-8-7-8-12a8 8 0 1116 0c0 5-4 9-8 12z"/>
-          <circle cx="12" cy="10" r="3" fill="#00e5a0"/>
-        </svg>
+    <!-- ============ Phase 1: 踢球校正 ============ -->
+    <template v-if="phase === 'kick'">
+      <!-- 頂部標題圖片 (與 Step1 同尺寸) -->
+      <div class="top-area">
+        <img :src="stepImg" alt="Step2. Kick Calibration" class="step-header-img" />
       </div>
-      <div class="step-header-title">Step2. Kick Calibration</div>
-    </div>
 
-    <!-- 說明 -->
-    <div class="instruction-area">
-      <p class="instruction-main">Try a gentle kick</p>
-      <p class="instruction-sub">
-        *If detected, you're ready to start.<br>
-        *If your kicks are not detected, please raise your hand for assistance.
-      </p>
-    </div>
+      <!-- 足球 + 雙腳互動區域 -->
+      <div class="kick-scene" @mousemove="onMouseMove" @click="handleKick">
+        <!-- 足球 -->
+        <div class="football-wrapper" ref="footballRef">
+          <img
+            :src="footNearBall ? footballGlow : footballNormal"
+            alt="football"
+            class="football-img"
+            :class="{ glowing: footNearBall }"
+          />
+        </div>
 
-    <!-- 踢球提示箭頭 -->
-    <div v-if="!detected" class="kick-arrow">
-      <svg width="50" height="40" viewBox="0 0 50 40" fill="none">
-        <path d="M25 0 L45 25 L35 25 L35 40 L15 40 L15 25 L5 25 Z" fill="rgba(0,229,160,0.5)" transform="rotate(180 25 20)"/>
-      </svg>
-    </div>
+        <!-- 左腳 (固定 / XR 時跟隨左手控制器) -->
+        <div class="foot" :class="store.isXR ? 'foot-follow' : 'foot-static-left'" :style="store.isXR ? leftFootStyle : {}">
+          <img :src="footLeftImg" alt="left foot" class="foot-img" />
+        </div>
 
-    <!-- 足球 -->
-    <div class="football-area">
-      <div class="football-wrapper" :class="{ detected }" @click="handleKick">
-        <div class="football-glow"></div>
-        <svg class="football-svg" viewBox="0 0 100 100">
-          <circle cx="50" cy="50" r="45" fill="#f0f0f0" stroke="#ccc" stroke-width="1"/>
-          <path d="M50 5 L62 20 L50 28 L38 20Z" fill="#2a2a2a" opacity="0.8"/>
-          <path d="M95 50 L80 62 L72 50 L80 38Z" fill="#2a2a2a" opacity="0.8"/>
-          <path d="M50 95 L38 80 L50 72 L62 80Z" fill="#2a2a2a" opacity="0.8"/>
-          <path d="M5 50 L20 38 L28 50 L20 62Z" fill="#2a2a2a" opacity="0.8"/>
-          <path d="M50 28 L72 50 L50 72 L28 50Z" fill="#2a2a2a" opacity="0.15"/>
-          <ellipse cx="38" cy="35" rx="15" ry="12" fill="rgba(255,255,255,0.3)"/>
-          <path d="M25 70 Q50 60 75 70" fill="none" stroke="#00b8a0" stroke-width="3" stroke-linecap="round" opacity="0.8"/>
-        </svg>
+        <!-- 右腳 (跟隨滑鼠 / XR 時跟隨右手控制器) -->
+        <div class="foot foot-follow" :style="rightFootStyle">
+          <img :src="footRightImg" alt="right foot" class="foot-img" />
+        </div>
       </div>
-    </div>
 
-    <!-- 雙腳 -->
-    <div class="feet-area">
-      <div class="foot">
-        <svg viewBox="0 0 80 120">
-          <rect x="20" y="0" width="36" height="55" rx="12" fill="#f0f0f0"/>
-          <rect x="22" y="20" width="32" height="16" rx="5" fill="#1a1a2e" stroke="#555" stroke-width="1"/>
-          <circle cx="38" cy="28" r="2" fill="#00e5a0" opacity="0.8"/>
-          <path d="M12 55 Q10 65 8 80 Q6 100 15 110 Q25 118 50 115 Q65 112 68 100 Q70 88 55 55Z" fill="#2dd4a8"/>
-          <path d="M15 75 Q35 70 55 75" fill="none" stroke="#1a8a6a" stroke-width="2"/>
-          <path d="M10 105 Q30 115 55 110" fill="none" stroke="#333" stroke-width="3"/>
-        </svg>
+    </template>
+
+    <!-- ============ Phase 2: Get Ready 過場 ============ -->
+    <Transition name="fade-in">
+      <div v-if="phase === 'getready'" class="getready-overlay">
+        <div class="getready-content">
+          <img :src="mascotsImg" alt="mascots" class="mascots-img" />
+        </div>
       </div>
-      <div class="foot">
-        <svg viewBox="0 0 80 120" style="transform: scaleX(-1)">
-          <rect x="20" y="0" width="36" height="55" rx="12" fill="#f0f0f0"/>
-          <rect x="22" y="20" width="32" height="16" rx="5" fill="#1a1a2e" stroke="#555" stroke-width="1"/>
-          <circle cx="38" cy="28" r="2" fill="#00e5a0" opacity="0.8"/>
-          <path d="M12 55 Q10 65 8 80 Q6 100 15 110 Q25 118 50 115 Q65 112 68 100 Q70 88 55 55Z" fill="#2dd4a8"/>
-          <path d="M15 75 Q35 70 55 75" fill="none" stroke="#1a8a6a" stroke-width="2"/>
-          <path d="M10 105 Q30 115 55 110" fill="none" stroke="#333" stroke-width="3"/>
-        </svg>
-      </div>
-    </div>
-
-    <!-- 狀態 -->
-    <div class="kick-status">
-      <span class="kick-status-text" :class="detected ? 'detected' : 'waiting'">
-        {{ detected ? 'Kick Detected! Ready to play.' : 'Waiting for kick detection...' }}
-      </span>
-    </div>
-
-    <!-- Start Game -->
-    <Transition name="btn-pop">
-      <button v-if="detected" class="next-btn" @click="$emit('complete')">Start Game!</button>
     </Transition>
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted, onUnmounted } from 'vue'
+import { ref, reactive, watch, onMounted, onUnmounted } from 'vue'
+import { useGameStore } from '../stores/gameStore.js'
 
-defineEmits(['complete'])
-const detected = ref(false)
-let timer = null
+import stepImg from '../assets/images/7-step2@4x.png'
+import footballNormal from '../assets/images/8-足球@4x.png'
+import footballGlow from '../assets/images/7-football@4x.png'
+import footLeftImg from '../assets/images/7-左腳@4x.png'
+import footRightImg from '../assets/images/7-右腳@4x.png'
+import mascotsImg from '../assets/images/6-hint2@4x.png'
 
-function handleKick() { detected.value = true }
+const emit = defineEmits(['complete'])
+const store = useGameStore()
+
+const phase = ref('kick') // 'kick' → 'getready'
+const footNearBall = ref(false)
+const footballRef = ref(null)
+let readyTimer = null
+
+const footPos = reactive({ x: 0, y: 0 })
+const rightFootStyle = ref({
+  top: '100%',
+  left: '64%',
+  transform: 'translate(-50%, -50%)',
+})
+const leftFootStyle = ref({
+  top: '100%',
+  left: '36%',
+  transform: 'translate(-50%, -50%)',
+})
+
+// XR 模式：雙控制器驅動雙腳
+watch(
+  () => [store.xrLeftFoot, store.xrRightFoot],
+  ([lf, rf]) => {
+    if (!store.isXR || phase.value !== 'kick') return
+    leftFootStyle.value = {
+      left: `${lf.x}px`,
+      top: `${lf.y}px`,
+      transform: 'translate(-50%, -50%)',
+    }
+    rightFootStyle.value = {
+      left: `${rf.x}px`,
+      top: `${rf.y}px`,
+      transform: 'translate(-50%, -50%)',
+    }
+  },
+  { deep: true }
+)
+
+function onMouseMove(e) {
+  const rect = e.currentTarget.getBoundingClientRect()
+  footPos.x = e.clientX - rect.left
+  footPos.y = e.clientY - rect.top
+
+  rightFootStyle.value = {
+    left: `${footPos.x}px`,
+    top: `${footPos.y}px`,
+    transform: 'translate(-50%, -50%)',
+  }
+
+  // 檢查右腳是否接近球
+  if (footballRef.value) {
+    const ballRect = footballRef.value.getBoundingClientRect()
+    const ballCenterX = ballRect.left + ballRect.width / 2 - rect.left
+    const ballCenterY = ballRect.top + ballRect.height / 2 - rect.top
+    const dist = Math.sqrt((footPos.x - ballCenterX) ** 2 + (footPos.y - ballCenterY) ** 2)
+    const threshold = ballRect.width * 0.8
+    footNearBall.value = dist < threshold
+  }
+}
+
+function handleKick() {
+  if (footNearBall.value) {
+    goToGetReady()
+  }
+}
+
+function goToGetReady() {
+  phase.value = 'getready'
+  readyTimer = setTimeout(() => {
+    emit('complete')
+  }, 2500)
+}
 
 onMounted(() => {
-  detected.value = false
-  timer = setTimeout(() => { if (!detected.value) detected.value = true }, 4000)
+  phase.value = 'kick'
 })
 
 onUnmounted(() => {
-  if (timer) { clearTimeout(timer); timer = null }
+  if (readyTimer) { clearTimeout(readyTimer); readyTimer = null }
 })
 </script>
 
@@ -106,92 +142,124 @@ onUnmounted(() => {
   position: fixed; inset: 0;
   z-index: 10;
   font-family: 'Outfit', sans-serif; color: #fff;
+  cursor: none;
 }
 
-.step-header {
-  position: absolute; top: 0; left: 0; right: 0; height: 56px;
-  background: linear-gradient(90deg, rgba(0,95,95,0.9), rgba(0,136,136,0.9), rgba(0,165,160,0.9), rgba(0,136,136,0.9), rgba(0,95,95,0.9));
-  display: flex; align-items: center; justify-content: center; gap: 12px;
-  z-index: 20; box-shadow: 0 2px 20px rgba(0,0,0,0.5);
-  backdrop-filter: blur(8px);
+/* ─── 頂部標題（與 Step1 同尺寸） ─── */
+.top-area {
+  position: absolute; top: 0; left: 0; right: 0;
+  z-index: 20;
+  display: flex; justify-content: center;
+  pointer-events: none;
   animation: fadeSlideDown 0.5s ease both;
 }
-.step-header-icon {
-  width: 32px; height: 32px; background: rgba(0,0,0,0.3);
-  border-radius: 50%; display: flex; align-items: center; justify-content: center;
-}
-.step-header-title { font-size: 22px; font-weight: 700; font-style: italic; }
-
-.instruction-area {
-  position: absolute; top: 76px; left: 50%; transform: translateX(-50%);
-  text-align: center; z-index: 15; width: 90%; max-width: 540px;
-  animation: fadeIn 0.6s ease 0.3s both;
-}
-.instruction-main { font-size: 24px; font-weight: 600; margin-bottom: 12px; text-shadow: 0 2px 12px rgba(0,0,0,0.6); }
-.instruction-sub { font-size: 13px; color: rgba(0,229,160,0.7); font-style: italic; line-height: 1.6; text-shadow: 0 1px 8px rgba(0,0,0,0.5); }
-
-.kick-arrow {
-  position: absolute; bottom: 25%; left: 50%; transform: translateX(-50%);
-  z-index: 12; animation: kick-hint 1.5s ease-in-out infinite;
+.step-header-img {
+  width: 80%;
+  max-width: 700px;
+  height: auto;
+  margin-top: 11vh;
+  filter: drop-shadow(0 0.4vh 1.5vw rgba(0,0,0,0.4));
 }
 
-.football-area {
-  position: absolute; bottom: 12%; left: 50%; transform: translateX(-50%);
-  z-index: 10; display: flex; flex-direction: column; align-items: center;
-  pointer-events: auto;
+/* ─── 互動場景 ─── */
+.kick-scene {
+  position: absolute; inset: 0;
+  z-index: 10; overflow: hidden;
 }
+
+/* ─── 足球（加大） ─── */
 .football-wrapper {
-  position: relative; width: 140px; height: 140px;
-  display: flex; align-items: center; justify-content: center; cursor: pointer;
+  position: absolute;
+  bottom: 18%; left: 50%; transform: translateX(-50%);
+  width: clamp(140px, 16vw, 220px);
+  height: clamp(140px, 16vw, 220px);
+  display: flex; align-items: center; justify-content: center;
 }
-.football-svg { width: 100px; height: 100px; filter: drop-shadow(0 4px 20px rgba(0,0,0,0.5)); transition: all 0.6s; }
-.football-glow {
-  position: absolute; width: 120px; height: 120px; border-radius: 50%;
-  background: radial-gradient(circle, rgba(245,200,66,0.15) 0%, transparent 70%); transition: all 0.6s;
+.football-img {
+  width: 100%; height: 100%; object-fit: contain;
+  transition: all 0.3s ease;
+  filter: drop-shadow(0 4px 20px rgba(0,0,0,0.5));
 }
-.football-wrapper.detected .football-glow {
-  width: 160px; height: 160px;
-  background: radial-gradient(circle, rgba(0,229,160,0.4) 0%, rgba(0,229,160,0.1) 50%, transparent 70%);
-  animation: glow-pulse 1.5s ease-in-out infinite;
-}
-.football-wrapper.detected .football-svg {
-  filter: drop-shadow(0 4px 30px rgba(0,229,160,0.5));
+.football-img.glowing {
+  width: 120%; height: 120%;
+  filter: drop-shadow(0 0 30px rgba(245,200,66,0.6)) drop-shadow(0 0 60px rgba(245,200,66,0.3));
+  animation: ball-glow-pulse 1.2s ease-in-out infinite;
 }
 
-.feet-area {
-  position: absolute; bottom: -20px; left: 50%; transform: translateX(-50%);
-  z-index: 8; display: flex; gap: 60px;
+/* ─── 鞋子共用（加大） ─── */
+.foot {
+  position: absolute;
+  width: clamp(320px, 32vw, 540px);
+  height: clamp(400px, 40vw, 680px);
+  pointer-events: none; z-index: 12;
 }
-.foot { width: 80px; height: 120px; }
-.foot svg { width: 100%; height: 100%; filter: drop-shadow(0 4px 15px rgba(0,0,0,0.4)); }
+.foot-img {
+  width: 100%; height: 100%; object-fit: contain;
+  filter: drop-shadow(0 6px 20px rgba(0,0,0,0.5));
+}
 
+/* 左腳 — 固定在畫面左下角 */
+.foot-static-left {
+  bottom: -22%; left: 36%;
+  transform: translateX(-50%);
+}
+
+/* 右腳 — 跟隨滑鼠 */
+.foot-follow {
+}
+
+/* ─── 狀態文字 ─── */
 .kick-status {
-  position: absolute; bottom: 36%; left: 50%; transform: translateX(-50%);
+  position: absolute; bottom: 40%; left: 50%; transform: translateX(-50%);
   z-index: 15; text-align: center;
 }
-.kick-status-text { font-size: 18px; font-weight: 600; font-style: italic; color: rgba(255,255,255,0.5); text-shadow: 0 2px 8px rgba(0,0,0,0.5); transition: all 0.4s; }
-.kick-status-text.waiting { animation: subtle-blink 2s ease-in-out infinite; }
-.kick-status-text.detected { color: #00e5a0; font-size: 22px; }
-
-.next-btn {
-  position: absolute; bottom: 30px; left: 50%; transform: translateX(-50%);
-  z-index: 20; font-family: 'Outfit', sans-serif;
-  font-size: 18px; font-weight: 700; padding: 14px 50px;
-  border: none; border-radius: 50px;
-  background: linear-gradient(135deg, #2a7a6a, #1a6a5a);
-  color: #fff; cursor: pointer; transition: all 0.25s; letter-spacing: 1px;
-  pointer-events: auto;
+.kick-status-text {
+  font-size: clamp(14px, 1.6vw, 20px); font-weight: 600; font-style: italic;
+  color: rgba(255,255,255,0.5);
+  text-shadow: 0 2px 8px rgba(0,0,0,0.5);
 }
-.next-btn:hover { transform: translateX(-50%) scale(1.05); box-shadow: 0 4px 20px rgba(0,229,160,0.2); }
+.kick-status-text.waiting { animation: subtle-blink 2s ease-in-out infinite; }
 
-.btn-pop-enter-active { animation: popIn 0.4s ease; }
-.btn-pop-leave-active { transition: opacity 0.2s; }
-.btn-pop-leave-to { opacity: 0; }
+/* ─── Phase 2: Get Ready ─── */
+.getready-overlay {
+  position: fixed; inset: 0;
+  z-index: 30;
+  display: flex; align-items: center; justify-content: center;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(4px);
+}
+.getready-content {
+  display: flex; flex-direction: column; align-items: center; gap: 20px;
+  animation: popIn 0.6s ease both;
+}
+.mascots-img {
+  width: 360px; max-width: 80vw; height: auto;
+  filter: drop-shadow(0 8px 30px rgba(0,0,0,0.4));
+}
+.getready-text {
+  font-size: 42px; font-weight: 900; font-style: italic;
+  text-transform: uppercase; letter-spacing: 2px;
+  text-shadow: 0 4px 20px rgba(0,0,0,0.6);
+}
+.getready-sub {
+  font-size: 20px; font-weight: 500; font-style: italic;
+  color: rgba(255,255,255,0.7);
+  text-shadow: 0 2px 10px rgba(0,0,0,0.4);
+  margin-top: -10px;
+}
 
-@keyframes glow-pulse { 0%,100% { transform: scale(1); opacity: 0.8; } 50% { transform: scale(1.15); opacity: 1; } }
-@keyframes kick-hint { 0%,100% { transform: translateX(-50%) translateY(0); opacity: 0.6; } 50% { transform: translateX(-50%) translateY(-15px); opacity: 1; } }
+/* ─── Transitions ─── */
+.fade-in-enter-active { transition: opacity 0.5s ease; }
+.fade-in-leave-active { transition: opacity 0.3s ease; }
+.fade-in-enter-from, .fade-in-leave-to { opacity: 0; }
+
+/* ─── Keyframes ─── */
+@keyframes ball-glow-pulse {
+  0%, 100% { filter: drop-shadow(0 0 30px rgba(245,200,66,0.6)) drop-shadow(0 0 60px rgba(245,200,66,0.3)); }
+  50% { filter: drop-shadow(0 0 40px rgba(245,200,66,0.8)) drop-shadow(0 0 70px rgba(245,200,66,0.5)); }
+}
 @keyframes subtle-blink { 0%,100% { opacity: 0.7; } 50% { opacity: 0.3; } }
-@keyframes popIn { from { transform: translateX(-50%) scale(0.5); opacity: 0; } to { transform: translateX(-50%) scale(1); opacity: 1; } }
+@keyframes popIn { from { transform: scale(0.7); opacity: 0; } to { transform: scale(1); opacity: 1; } }
 @keyframes fadeSlideDown { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
 @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 </style>

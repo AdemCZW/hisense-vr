@@ -6,8 +6,8 @@ import { defineStore } from 'pinia'
 
 export const useGameStore = defineStore('game', {
   state: () => ({
-    // 畫面流程
-    screen: 'start', // start | tutorial | calibView | calibKick | game | result
+    // 畫面流程（從 sessionStorage 恢復）
+    screen: sessionStorage.getItem('vr-screen') || 'start', // start | tutorial | calibView | calibKick | warmUp | warmUpDodge | game | result
 
     // 遊戲狀態
     round: 0,
@@ -22,6 +22,11 @@ export const useGameStore = defineStore('game', {
     // 踢球數據
     lastKickSpeed: 0,  // km/h
     lastKickAngle: 0,  // degrees
+
+    // WebXR 狀態
+    isXR: false,
+    xrLeftFoot: { x: 0, y: 0 },   // 左手控制器→左腳螢幕座標
+    xrRightFoot: { x: 0, y: 0 },  // 右手控制器→右腳螢幕座標
 
     // 三回合 AI 難度
     difficultyLevels: [
@@ -62,6 +67,7 @@ export const useGameStore = defineStore('game', {
     /** 切換畫面 */
     setScreen(screen) {
       this.screen = screen
+      sessionStorage.setItem('vr-screen', screen)
     },
 
     /** 開始新遊戲 */
@@ -75,6 +81,7 @@ export const useGameStore = defineStore('game', {
       this.gameOver = false
       this.lastKickSpeed = 0
       this.screen = 'game'
+      sessionStorage.setItem('vr-screen', 'game')
     },
 
     /** 踢球 */
@@ -118,11 +125,21 @@ export const useGameStore = defineStore('game', {
       this.lastKickSpeed = 0
       this.lastKickAngle = 0
       this.screen = 'start'
+      sessionStorage.setItem('vr-screen', 'start')
+    },
+
+    /** 更新 XR 控制器腳部位置 */
+    updateXRFeet(left, right) {
+      this.xrLeftFoot.x = left.x
+      this.xrLeftFoot.y = left.y
+      this.xrRightFoot.x = right.x
+      this.xrRightFoot.y = right.y
     },
 
     /** 跳到成績頁 */
     showResult() {
       this.screen = 'result'
+      sessionStorage.setItem('vr-screen', 'result')
     },
   },
 })

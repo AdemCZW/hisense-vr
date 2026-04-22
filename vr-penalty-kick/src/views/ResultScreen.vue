@@ -1,203 +1,169 @@
 <template>
   <div class="result-screen">
-    <!-- 獎章 -->
-    <div class="medal-area">
-      <div class="medal-glow" :class="store.medal"></div>
-      <div class="medal-icon" :class="store.medal">
-        <svg v-if="store.medal === 'gold'" viewBox="0 0 120 120">
-          <circle cx="60" cy="60" r="52" fill="#f5c842" stroke="#d4a017" stroke-width="3"/>
-          <circle cx="60" cy="60" r="42" fill="none" stroke="#d4a017" stroke-width="1.5" stroke-dasharray="4,4"/>
-          <text x="60" y="55" text-anchor="middle" font-size="20" font-weight="900" fill="#8a6914" font-family="Outfit">GOLD</text>
-          <text x="60" y="78" text-anchor="middle" font-size="32" font-weight="900" fill="#8a6914" font-family="Outfit">&#9733;</text>
-        </svg>
-        <svg v-else-if="store.medal === 'silver'" viewBox="0 0 120 120">
-          <circle cx="60" cy="60" r="52" fill="#c0c0c0" stroke="#999" stroke-width="3"/>
-          <circle cx="60" cy="60" r="42" fill="none" stroke="#999" stroke-width="1.5" stroke-dasharray="4,4"/>
-          <text x="60" y="55" text-anchor="middle" font-size="18" font-weight="900" fill="#666" font-family="Outfit">SILVER</text>
-          <text x="60" y="78" text-anchor="middle" font-size="32" font-weight="900" fill="#666" font-family="Outfit">&#9733;</text>
-        </svg>
-        <svg v-else-if="store.medal === 'bronze'" viewBox="0 0 120 120">
-          <circle cx="60" cy="60" r="52" fill="#cd7f32" stroke="#a5651e" stroke-width="3"/>
-          <circle cx="60" cy="60" r="42" fill="none" stroke="#a5651e" stroke-width="1.5" stroke-dasharray="4,4"/>
-          <text x="60" y="55" text-anchor="middle" font-size="16" font-weight="900" fill="#7a4c1a" font-family="Outfit">BRONZE</text>
-          <text x="60" y="78" text-anchor="middle" font-size="32" font-weight="900" fill="#7a4c1a" font-family="Outfit">&#9733;</text>
-        </svg>
-        <svg v-else viewBox="0 0 120 120">
-          <circle cx="60" cy="60" r="52" fill="#333" stroke="#555" stroke-width="3"/>
-          <text x="60" y="65" text-anchor="middle" font-size="14" font-weight="700" fill="#888" font-family="Outfit">TRY AGAIN</text>
-        </svg>
-      </div>
+    <!-- 彩片 -->
+    <div class="confetti-container">
+      <div v-for="i in 40" :key="i" class="confetti" :style="confettiStyle(i)"></div>
     </div>
 
-    <!-- 成績 -->
-    <div class="score-area">
-      <h1 class="score-title">{{ store.medalLabel }}</h1>
-      <div class="score-detail">
-        <span class="score-num">{{ store.score }}</span>
-        <span class="score-slash">/</span>
-        <span class="score-total">{{ store.maxRounds }}</span>
+    <!-- Phase 1: PERFECT VISION -->
+    <Transition name="fade-page">
+      <div v-if="phase === 'perfect'" class="center-area" key="perfect">
+        <img :src="perfectImg" alt="Perfect Vision" class="perfect-img" />
       </div>
-    </div>
+    </Transition>
 
-    <!-- 回合明細 -->
-    <div class="round-summary">
-      <div v-for="(result, i) in store.results" :key="i" class="round-item" :class="result">
-        <span class="round-label">Round {{ i + 1 }}</span>
-        <span class="round-result">{{ result === 'goal' ? 'GOAL' : 'MISS' }}</span>
+    <!-- Phase 2: Experience Complete + 玩家 -->
+    <Transition name="fade-page">
+      <div v-if="showComplete" class="complete-area" key="complete">
+        <div class="top-area">
+          <img :src="hintImg" alt="Experience Complete" class="header-img" />
+        </div>
+        <div class="user-area">
+          <img :src="userImg" alt="player" class="user-img" />
+        </div>
       </div>
-    </div>
-
-    <!-- QR Code 預留 -->
-    <div class="qr-area">
-      <div class="qr-placeholder">
-        <svg viewBox="0 0 80 80" width="80" height="80">
-          <rect x="0" y="0" width="80" height="80" rx="8" fill="#222" stroke="#444" stroke-width="1"/>
-          <rect x="10" y="10" width="24" height="24" rx="2" fill="#555"/>
-          <rect x="46" y="10" width="24" height="24" rx="2" fill="#555"/>
-          <rect x="10" y="46" width="24" height="24" rx="2" fill="#555"/>
-          <rect x="46" y="46" width="24" height="24" rx="2" fill="#444"/>
-        </svg>
-        <p class="qr-text">Scan to download your highlight video</p>
-      </div>
-    </div>
-
-    <!-- 操作按鈕 -->
-    <div class="action-buttons">
-      <button class="btn-primary" @click="store.startGame()">PLAY AGAIN</button>
-      <button class="btn-secondary" @click="store.resetAll()">Back to Start</button>
-    </div>
+    </Transition>
   </div>
 </template>
 
 <script setup>
+import { ref, onMounted, onUnmounted } from 'vue'
 import { useGameStore } from '../stores/gameStore.js'
+
+import perfectImg from '../assets/images/9-perfect@4x.png'
+import hintImg from '../assets/images/9-hint@4x.png'
+import userImg from '../assets/images/9-user@4x.png'
+
 const store = useGameStore()
+
+const phase = ref('perfect') // 'perfect' → 'complete'
+const showComplete = ref(false)
+let timer = null
+
+const confettiColors = ['#f5c842', '#00e5a0', '#e24b4a', '#00b8d4', '#ff6b9d', '#a855f7', '#fff']
+
+function confettiStyle(i) {
+  const left = Math.random() * 100
+  const delay = Math.random() * 3
+  const duration = 3 + Math.random() * 4
+  const size = 4 + Math.random() * 8
+  const color = confettiColors[i % confettiColors.length]
+  const rotate = Math.random() * 360
+  return {
+    left: `${left}%`,
+    width: `${size}px`,
+    height: `${size * (0.4 + Math.random() * 0.6)}px`,
+    background: color,
+    animationDelay: `${delay}s`,
+    animationDuration: `${duration}s`,
+    transform: `rotate(${rotate}deg)`,
+  }
+}
+
+onMounted(() => {
+  phase.value = 'perfect'
+  showComplete.value = false
+  timer = setTimeout(() => {
+    phase.value = 'complete'
+    // 等吉祥物淡出完成後再顯示球員
+    setTimeout(() => {
+      showComplete.value = true
+    }, 600)
+  }, 4000)
+})
+
+onUnmounted(() => {
+  if (timer) { clearTimeout(timer); timer = null }
+})
 </script>
 
 <style scoped>
 .result-screen {
   position: fixed; inset: 0;
   z-index: 10;
-  display: flex; flex-direction: column;
+  display: flex;
   align-items: center; justify-content: center;
   font-family: 'Outfit', sans-serif; color: #fff;
+  overflow: hidden;
 }
 
-/* 獎章 */
-.medal-area {
-  position: relative; z-index: 10; margin-bottom: 16px;
-  animation: medalDrop 0.6s ease both;
+/* ─── 彩片 ─── */
+.confetti-container {
+  position: absolute; inset: 0;
+  z-index: 5; pointer-events: none;
+  overflow: hidden;
+}
+.confetti {
+  position: absolute;
+  top: -10%;
+  border-radius: 2px;
+  opacity: 0.9;
+  animation: confetti-fall linear infinite;
 }
 
-.medal-glow {
-  position: absolute; inset: -40px; border-radius: 50%;
-  filter: blur(40px); opacity: 0.4;
+/* ─── Phase 1: PERFECT VISION ─── */
+.center-area {
+  z-index: 10;
+  animation: fadeIn 0.8s ease both;
 }
-.medal-glow.gold { background: #f5c842; }
-.medal-glow.silver { background: #c0c0c0; }
-.medal-glow.bronze { background: #cd7f32; }
-.medal-glow.none { background: #555; }
-
-.medal-icon {
-  width: 120px; height: 120px;
-  animation: medal-float 3s ease-in-out 0.6s infinite;
+.perfect-img {
+  width: clamp(340px, 50vw, 700px);
+  height: auto;
+  filter: drop-shadow(0 8px 30px rgba(0,0,0,0.4));
+  animation: trophy-float 3s ease-in-out infinite;
 }
 
-/* 成績 */
-.score-area {
-  position: relative; z-index: 10; text-align: center; margin-bottom: 20px;
+/* ─── Phase 2: Experience Complete ─── */
+.complete-area {
+  position: absolute; inset: 0;
+  z-index: 10;
+  display: flex; flex-direction: column;
+  align-items: center;
+}
+.top-area {
+  width: 100%;
+  display: flex; justify-content: center;
+  animation: fadeSlideDown 0.5s ease both;
+}
+.header-img {
+  width: 80%;
+  max-width: 700px;
+  height: auto;
+  margin-top: 11vh;
+  filter: drop-shadow(0 0.4vh 1.5vw rgba(0,0,0,0.4));
+}
+.user-area {
+  flex: 1;
+  display: flex; align-items: flex-end; justify-content: center;
   animation: fadeSlideUp 0.6s ease 0.3s both;
 }
-
-.score-title {
-  font-size: clamp(32px, 6vw, 56px); font-weight: 900; letter-spacing: 4px;
-  background: linear-gradient(135deg, #00e5a0, #00b8d4);
-  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-  margin: 0 0 8px 0;
+.user-img {
+  height: clamp(300px, 60vh, 600px);
+  width: auto;
+  filter: drop-shadow(0 8px 30px rgba(0,0,0,0.5));
 }
 
-.score-detail { font-size: 48px; font-weight: 900; letter-spacing: -2px; }
-.score-num { color: #fff; }
-.score-slash { color: rgba(255,255,255,0.3); margin: 0 4px; }
-.score-total { color: rgba(255,255,255,0.4); }
+/* ─── Transitions ─── */
+.fade-page-enter-active { transition: opacity 0.5s ease; }
+.fade-page-leave-active { transition: opacity 0.5s ease; }
+.fade-page-enter-from, .fade-page-leave-to { opacity: 0; }
 
-/* 回合明細 */
-.round-summary {
-  display: flex; gap: 16px; z-index: 10; margin-bottom: 24px;
-  animation: fadeSlideUp 0.6s ease 0.5s both;
+/* ─── Keyframes ─── */
+@keyframes confetti-fall {
+  0% { transform: translateY(-10vh) rotate(0deg); opacity: 1; }
+  100% { transform: translateY(110vh) rotate(720deg); opacity: 0.3; }
 }
-
-.round-item {
-  padding: 8px 20px; border-radius: 12px;
-  background: rgba(0,0,0,0.5); backdrop-filter: blur(8px);
-  border: 1px solid rgba(255,255,255,0.1); text-align: center;
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+@keyframes fadeSlideDown {
+  from { opacity: 0; transform: translateY(-20px); }
+  to { opacity: 1; transform: translateY(0); }
 }
-.round-item.goal { border-color: rgba(245,200,66,0.4); background: rgba(245,200,66,0.12); }
-.round-item.miss { border-color: rgba(226,75,74,0.4); background: rgba(226,75,74,0.12); }
-
-.round-label {
-  display: block; font-size: 11px; font-weight: 500;
-  color: rgba(255,255,255,0.5); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 4px;
-}
-.round-result { font-size: 16px; font-weight: 700; }
-.round-item.goal .round-result { color: #f5c842; }
-.round-item.miss .round-result { color: #e24b4a; }
-
-/* QR */
-.qr-area {
-  z-index: 10; margin-bottom: 16px;
-  animation: fadeSlideUp 0.6s ease 0.7s both;
-}
-.qr-placeholder {
-  display: flex; align-items: center; gap: 16px;
-  padding: 16px 24px;
-  background: rgba(0,0,0,0.5); backdrop-filter: blur(8px);
-  border: 1px dashed rgba(255,255,255,0.15); border-radius: 16px;
-}
-.qr-text { font-size: 13px; color: rgba(255,255,255,0.4); font-style: italic; margin: 0; }
-
-/* 按鈕 */
-.action-buttons {
-  position: absolute; bottom: 30px; z-index: 20;
-  display: flex; gap: 16px;
-  pointer-events: auto;
-  animation: fadeSlideUp 0.6s ease 0.9s both;
-}
-
-.btn-primary {
-  font-family: 'Outfit', sans-serif;
-  font-size: 20px; font-weight: 800; letter-spacing: 3px;
-  color: #fff;
-  background: linear-gradient(135deg, #2a7a6a, #1a6a5a);
-  border: none; border-radius: 50px;
-  padding: 16px 60px; cursor: pointer;
-  box-shadow: 0 4px 24px rgba(0,0,0,0.3); transition: all 0.25s;
-}
-.btn-primary:hover { transform: scale(1.05); box-shadow: 0 6px 32px rgba(0,229,160,0.2); }
-
-.btn-secondary {
-  font-family: 'Outfit', sans-serif;
-  font-size: 16px; font-weight: 500;
-  color: rgba(255,255,255,0.6);
-  background: rgba(255,255,255,0.1); backdrop-filter: blur(8px);
-  border: 1px solid rgba(255,255,255,0.2);
-  border-radius: 50px; padding: 16px 36px;
-  cursor: pointer; transition: all 0.2s;
-}
-.btn-secondary:hover { background: rgba(255,255,255,0.2); color: #fff; }
-
-@keyframes medalDrop {
-  from { opacity: 0; transform: translateY(-40px) scale(0.6); }
-  to { opacity: 1; transform: translateY(0) scale(1); }
-}
-
-@keyframes medal-float {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-10px); }
-}
-
 @keyframes fadeSlideUp {
   from { opacity: 0; transform: translateY(20px); }
   to { opacity: 1; transform: translateY(0); }
+}
+@keyframes trophy-float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
 }
 </style>

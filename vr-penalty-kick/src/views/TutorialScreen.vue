@@ -57,26 +57,23 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onUnmounted } from 'vue'
+import { ref, onMounted } from 'vue'
 
 const emit = defineEmits(['complete'])
 const currentStep = ref(0)
-let timer = null
 
 function onPageClick() {
-  if (currentStep.value === 1) {
+  if (currentStep.value === 0) {
+    currentStep.value = 1
+  } else if (currentStep.value === 1) {
     emit('complete')
   }
 }
 
 onMounted(() => {
-  // 裝備頁 3 秒後自動跳到協助頁
-  timer = setTimeout(() => {
-    currentStep.value = 1
-  }, 3000)
+  currentStep.value = 0
 })
 
-onUnmounted(() => { if (timer) clearTimeout(timer) })
 </script>
 
 <style scoped>
@@ -102,14 +99,13 @@ onUnmounted(() => { if (timer) clearTimeout(timer) })
   display: flex;
   align-items: center;
   gap: clamp(10px, 1.2vw, 20px);
-  background: rgba(20, 50, 40, 0.85);
   backdrop-filter: blur(12px);
   border-radius: clamp(10px, 1.2vw, 20px);
   padding: clamp(14px, 2vh, 28px) clamp(20px, 3vw, 44px);
-  margin-top: 2vh;
+  margin-top: 8vh;
   margin-bottom: 2vh;
-  max-width: 60vw;
   width: 90%;
+  justify-content: center;
   animation: fadeSlideDown 0.6s ease both;
 }
 
@@ -141,19 +137,20 @@ onUnmounted(() => { if (timer) clearTimeout(timer) })
 }
 
 .hint-text {
-  font-size: clamp(14px, 1.4vw, 22px);
+  font-size: clamp(22px, 2.2vw, 34px);
   font-weight: 700;
   color: #fff;
   line-height: 1.5;
   margin: 0;
+  text-align: center;
 }
 
 /* ─── 裝備佈局（固定比例容器） ─── */
 .equip-layout {
   position: relative;
-  width: min(85vw, 140vh);  /* 寬度跟隨視窗，但不會超過高度比例 */
+  width: min(95vw, 160vh);  /* 寬度跟隨視窗，但不會超過高度比例 */
   aspect-ratio: 16 / 9;     /* 固定寬高比，所有子元素等比縮放 */
-  margin: 0 auto;
+  margin: -8vh auto 0;
   animation: fadeIn 0.8s ease 0.2s both;
 }
 
@@ -211,7 +208,7 @@ onUnmounted(() => { if (timer) clearTimeout(timer) })
 }
 
 .assist-img {
-  height: clamp(200px, 50vh, 500px);
+  height: clamp(280px, 65vh, 650px);
   width: auto;
   filter: drop-shadow(0 0.8vh 2.5vw rgba(0,0,0,0.5));
 }

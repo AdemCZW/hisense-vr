@@ -63,7 +63,7 @@ function particleStyle() {
 }
 
 .logo-img {
-  height: clamp(50px, 6vh, 90px);
+  height: clamp(70px, 9vh, 130px);
   width: auto;
   filter: drop-shadow(0 0.3vh 1.2vw rgba(0,0,0,0.6));
 }
@@ -73,11 +73,13 @@ function particleStyle() {
   position: relative;
   z-index: 10;
   text-align: center;
+  margin-top: -22vh;
   animation: fadeSlideUp 1s ease 0.2s both;
 }
 
 .slogan-img {
-  width: clamp(280px, 55vw, 850px);
+  width: 90%;
+  max-width: 850px;
   height: auto;
   filter: drop-shadow(0 0.5vh 3vw rgba(0,0,0,0.6));
 }
@@ -85,7 +87,7 @@ function particleStyle() {
 /* ─── START 按鈕 ─── */
 .start-btn-wrapper {
   position: absolute;
-  bottom: 6vh;
+  bottom: 12vh;
   z-index: 20;
   pointer-events: auto;
   animation: fadeSlideUp 0.8s ease 0.6s both;
@@ -93,23 +95,23 @@ function particleStyle() {
 
 .start-btn {
   font-family: 'Outfit', sans-serif;
-  font-size: clamp(18px, 2vw, 32px);
-  font-weight: 800;
+  font-size: clamp(28px, 4.5vw, 52px);
+  font-weight: 900;
   font-style: italic;
-  letter-spacing: 0.2em;
-  color: #1a6a5a;
+  letter-spacing: 0em;
+  color: #2a9a8a;
   background: #ffffff;
   border: none;
-  border-radius: 5vw;
-  padding: 1.8vh 6vw;
+  border-radius: 23px;
+  padding: 1.2vh 6vw;
   cursor: pointer;
-  box-shadow: 0 0.4vh 2vw rgba(0,0,0,0.25);
+  box-shadow: 0 6px 30px rgba(0,0,0,0.25);
   transition: all 0.25s ease;
 }
 
 .start-btn:hover {
   transform: scale(1.05);
-  box-shadow: 0 0.6vh 2.5vw rgba(0,0,0,0.35);
+  box-shadow: 0 8px 40px rgba(0,0,0,0.35);
 }
 
 .start-btn:active { transform: scale(0.97); }

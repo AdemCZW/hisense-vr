@@ -113,8 +113,10 @@ onUnmounted(() => {
 }
 
 .step-header-img {
-  width: clamp(400px, 55vw, 900px);
+  width: 80%;
+  max-width: 700px;
   height: auto;
+  margin-top: 11vh;
   filter: drop-shadow(0 0.4vh 1.5vw rgba(0,0,0,0.4));
 }
 
@@ -136,6 +138,8 @@ onUnmounted(() => {
 }
 
 .circle-img {
+  position: absolute;
+  inset: 0;
   width: 100%;
   height: 100%;
   object-fit: contain;
@@ -174,9 +178,11 @@ onUnmounted(() => {
 /* 打勾動畫 */
 .check-anim {
   position: absolute;
+  inset: 0;
+  margin: auto;
   width: 55%;
   height: 55%;
-  animation: popIn 0.5s ease;
+  animation: checkPopIn 0.5s ease;
   z-index: 4;
 }
 
@@ -196,6 +202,7 @@ onUnmounted(() => {
 .bottom-area {
   display: flex;
   justify-content: center;
+  margin-bottom: 12vh;
   animation: fadeIn 0.6s ease 0.3s both;
 }
 
@@ -219,6 +226,7 @@ onUnmounted(() => {
 @keyframes spin { to { transform: rotate(360deg); } }
 @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
 @keyframes popIn { from { transform: scale(0.5); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+@keyframes checkPopIn { from { opacity: 0; } to { opacity: 1; } }
 @keyframes drawCheck { to { stroke-dashoffset: 0; } }
 @keyframes fadeSlideDown { from { opacity: 0; transform: translateY(-2vh); } to { opacity: 1; transform: translateY(0); } }
 @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }

@@ -1,7 +1,7 @@
 /**
  * GameManager.js — 遊戲管理器
  * 使用 App.vue 提供的共享 3D 場景
- * 控制遊戲流程：踢球 → 球飛行 → 判定進球 → 下一回合 → 結算
+ * 控制遊戲流程：踢球 → 球飛行（軌跡+回放視角） → 判定進球 → 下一回合 → 結算
  */
 import * as THREE from 'three'
 import { GOAL_WIDTH, GOAL_HEIGHT, GOAL_Z } from './scene/Stadium.js'
@@ -10,6 +10,8 @@ import { Goalkeeper } from './ai/Goalkeeper.js'
 import { PhysicsWorld } from './physics/PhysicsWorld.js'
 import { InputManager } from './input/InputManager.js'
 import { XRManager } from './xr/XRManager.js'
+import { BallTrail } from './scene/BallTrail.js'
+import { ReplayCamera } from './scene/ReplayCamera.js'
 
 export class GameManager {
   /**
@@ -37,11 +39,19 @@ export class GameManager {
     this.input = new InputManager(this.camera, this.renderer)
     this.input.addToScene(this.scene)
 
-    // 設定攝影機到罰球點第一人稱
-    this.camera.position.set(0, 1.65, -8)
+    // WebXR — 使用 App.vue 提供的共享 XRManager
+    this.xr = sceneApi.getXRManager?.() || new XRManager(this.renderer)
+    this.input.setXRManager(this.xr)
 
-    // WebXR
-    this.xr = new XRManager(this.renderer)
+    // 監聽 XR session，切換輸入模式
+    this.xr.onSessionStart(() => { this.input.isXR = true })
+    this.xr.onSessionEnd(() => { this.input.isXR = false })
+
+    // 球軌跡特效
+    this.ballTrail = new BallTrail(this.scene)
+
+    // 回放攝影機
+    this.replayCamera = new ReplayCamera(this.camera)
 
     // 踢球事件
     this.input.onKick((targetX, targetY) => {
@@ -51,10 +61,11 @@ export class GameManager {
     // 綁定更新回調
     this._updateBound = (delta, elapsed) => this._update(delta, elapsed)
 
-    // 訊息回調
+    // 回調
     this._onMessage = null
     this._onSpeedDisplay = null
     this._onGameEnd = null
+    this._onResult = null  // 物理判定結果回調
   }
 
   // ─── 事件回調設定 ───
@@ -62,6 +73,7 @@ export class GameManager {
   onMessage(fn) { this._onMessage = fn }
   onSpeedDisplay(fn) { this._onSpeedDisplay = fn }
   onGameEnd(fn) { this._onGameEnd = fn }
+  onResult(fn) { this._onResult = fn }
 
   // ─── 遊戲控制 ───
 
@@ -78,6 +90,7 @@ export class GameManager {
     this.physics.resetBall()
     this.football.reset()
     this.goalkeeper.reset()
+    this.ballTrail.reset()
     this.input.setAimVisible(true)
     this.input.resetView()
     this._resultChecked = false
@@ -98,6 +111,7 @@ export class GameManager {
     this.football.dispose(this.scene)
     this.goalkeeper.dispose(this.scene)
     this.input.removeFromScene(this.scene)
+    this.ballTrail.dispose(this.scene)
   }
 
   // ─── 內部邏輯 ───
@@ -116,6 +130,16 @@ export class GameManager {
 
     this.goalkeeper.triggerDive(this.store.round, targetX)
     this._resultChecked = false
+
+    // 啟動球軌跡
+    this.ballTrail.start()
+
+    // 啟動回放攝影機（從側面追蹤球）
+    const ballStartPos = this.physics.ballBody.position.clone()
+    this.replayCamera.start(
+      new THREE.Vector3(ballStartPos.x, ballStartPos.y, ballStartPos.z),
+      targetX
+    )
   }
 
   _update(delta, elapsed) {
@@ -123,6 +147,16 @@ export class GameManager {
     this.football.syncWithPhysics(this.physics.ballBody)
     this.goalkeeper.update(delta, elapsed)
     this.input.update(elapsed)
+
+    // 更新球軌跡
+    if (this.ballTrail.active) {
+      this.ballTrail.update(this.physics.ballBody.position)
+    }
+
+    // 更新回放攝影機
+    if (this.replayCamera.active) {
+      this.replayCamera.update(delta, this.physics.ballBody.position)
+    }
 
     if (this.store.ballKicked && !this._resultChecked) {
       this._checkGoal()
@@ -160,32 +194,9 @@ export class GameManager {
   }
 
   _onRoundEnd(result) {
-    if (result === 'goal') {
-      this._showMessage('GOAL!', 'goal')
-    } else if (result === 'saved') {
-      this._showMessage('SAVED!', 'miss')
-    } else {
-      this._showMessage('MISS!', 'miss')
-    }
-
-    this.store.recordResult(result)
-
-    setTimeout(() => {
-      this._hideMessage()
-
-      if (this.store.hasNextRound) {
-        this.physics.resetBall()
-        this.football.reset()
-        this.goalkeeper.reset()
-        this.store.readyNextRound()
-        this.input.setAimVisible(true)
-
-        this._showMessage('READY', 'ready')
-        setTimeout(() => this._hideMessage(), 800)
-      } else {
-        if (this._onGameEnd) this._onGameEnd()
-      }
-    }, 1500)
+    this.ballTrail.stop()
+    // 通知 GameView 物理判定結果
+    if (this._onResult) this._onResult(result)
   }
 
   _showMessage(text, type) {
